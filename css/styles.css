@@ -1,0 +1,21 @@
+body {
+/*	background-color: #f6e8c3;*/
+	line-height: 1.62;
+}
+
+
+header {
+/*	background-color: #80cdc1;*/
+}
+
+
+
+#map {
+	height: 600px;
+	float: right;
+}
+
+#geoList {
+/*	background-color: #bf812d;*/
+}
+
