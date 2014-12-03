@@ -1,102 +1,55 @@
-//set up our map
+//set up our Leaflet map
 var map = L.map('map').setView([40.7056258,-73.97968], 10)
-
-		// //Add basemap from mapbox
-		// L.tileLayer('https://{s}.tiles.mapbox.com/v3/{id}/{z}/{x}/{y}.png', {
-		// 	maxZoom: 18,  //can't zoom in closer than 18
-		// 	attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, ' +
-		// 		'<a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
-		// 		'Imagery © <a href="http://mapbox.com">Mapbox</a>',
-		// }).addTo(map);
-
 
 var Esri_WorldGrayCanvas = L.tileLayer('http://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
 	attribution: 'Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ',
 	maxZoom: 16
 }).addTo(map);
 
+var svg = d3.select(map.getPanes().overlayPane).append("svg"),
+    // attach an empty g element with specific attributes - any thing with a class of leaflet-zoom-hide means leaflet will hide it while the zoom is taking place
+    g = svg.append("g").attr("class", "leaflet-zoom-hide");
 
-//function to create pop-ups and sidebar divs
-function makePopUps(feature, layer){
-	//console.log(feature);
-	//layer.bindPopup defines the pop-up value
-	layer.bindPopup(
-		"Neighborhood: <br>"
-		+ feature.properties.Alt_Name
-		);
+//this is saying go get us-states.json in a callback function and then do to it a WHOLE BUNCH OF STUFF called collection
+d3.json("data/landcoversumm.geojson", function(collection) {
+  //this is a path builder.  a path is an SVG element that is a polygon.  geojson has to be transformed to turn it into a path on the screen - to the "d" notation for SVG elements
+  var transform = d3.geo.transform({point: projectPoint}),
+      path = d3.geo.path().projection(transform);
+  
+  //setting a variable called feature.  recall that the g object was created earlier, it's a group element in the SVG.  this is where you have to select something that doesn't exist so that you can create them.
+  var feature = g.selectAll("path")  //at this point the paths don't exist but we have to call them
+      .data(collection.features) //for every path - affiliate it with some data. collection.features are your geojson subfeatures.  features is an array, each object is an individual state.  .data connects the features array to the path
+    .enter().append("path");  //.enter means that any new data that D3 wasn't aware of previously - do it.  sibling features are .update and .exit - this is doing stuff to data that is being updated or coming off the screen.  this says for every element in this data - append a path element inside the g element
 
-	//set up divs classed using the MINOR_DESC 
-	$('#geoList').append(
-		"<div class = 'geoListItem' id='"
-		+ feature.properties.NEIGH_CODE
-		+"'>"
-		+ feature.properties.Alt_Name
-		+"</div>"
-		)
-	}
+    //assign a class to a D3 feature based on data attributes
+    feature.attr('class',function(d) {
+      return d.properties.name;
+    }).on('click',function(d) {
+      alert(d.properties.name)});
 
-
-
-function highlightMarker(geojsonLayer,thisPoly) {
-  geojsonLayer.eachLayer(function(marker) {
-		if(thisPoly==marker.feature.properties.NEIGH_CODE) {
-   		marker.setStyle({
-   			fillOpacity: 1,
-   			weight:1,
-   			color: 'steelblue'
-   			});
-   			//console.log(marker.options.fillOpacity);
-		} else {
-			marker.setStyle({
-				fillOpacity:.8,
-				weight:1,
-				color: '#cecece'
-				});
-		}
-  });
-}
+  map.on("viewreset", reset);
+  reset();
 
 
-// get color depending on population density value
-function getColor(d) { //at some point in the future we will be calling out the value d from the dataset
-	return d > 80  ? '#00441b' :
-	       d > 60  ? '#238b45' :
-	       d > 40  ? '#74c476' :
-	       d > 20  ? '#c7e9c0' :
-	                  '#f7fcf5';
-}
+  // Reposition the SVG to cover the features.
+  function reset() {
+    var bounds = path.bounds(collection),
+        topLeft = bounds[0],
+        bottomRight = bounds[1];
+        //here we are setting width and height of the attribute layer based on the bounds.
+    svg .attr("width", bottomRight[0] - topLeft[0])
+        .attr("height", bottomRight[1] - topLeft[1])
+        .style("left", topLeft[0] + "px")
+        .style("top", topLeft[1] + "px");
+    g   .attr("transform", "translate(" + -topLeft[0] + "," + -topLeft[1] + ")");
+    //this is actually where we draw the shape on the map; out of the data that we passed turn this into an SVG attribute
+    feature.attr("d", path);
+  }
 
-function style(feature) {//this function is being passed a feature and is returning a pile of style attributed
-	//console.log(feature);
-	return {
-		weight: 1,
-		opacity: 1,
-		color: '#cecece',
-		fillOpacity: 0.8,
-		fillColor: getColor(feature.properties.Can_P) //getColor was defined right up above. this statement says pick the color depending on the value in the density property of the us-states.js.  so feature.properties.density is being passed as 'd'
-	};
-}
+  // Use Leaflet to implement a D3 geometric transformation.
+  function projectPoint(x, y) {
+    var point = map.latLngToLayerPoint(new L.LatLng(y, x));
+    this.stream.point(point.x, point.y);
+  }
 
-
-
-//add data to the map
-$.getJSON('data/landcoversumm.geojson', function(data) {
-	var geojsonLayer = L.geoJson(data.features, {
-		style: style, //styled above
-		onEachFeature: makePopUps,
-	}).addTo(map);
-
-
-	$('.geoListItem')
-	.mouseenter(function(){
-		$(this).toggleClass('highlight');
-		var thisPoly = $(this).attr('id');
-		highlightMarker(geojsonLayer,thisPoly);
-	})
-	.mouseout(function(){
-		$(this).toggleClass('highlight');
-		var thisPoly;
-		highlightMarker(geojsonLayer,thisPoly);
-	})
 });
-
