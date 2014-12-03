@@ -17,5 +17,12 @@ header {
 
 #geoList {
 /*	background-color: #bf812d;*/
+	overflow: scroll;
+	height: 600px;
 }
 
+
+
+.highlight {
+	background:steelblue;
+}
