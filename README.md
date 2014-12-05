@@ -2,6 +2,16 @@
 Final project in progress for XSAVI-780
 
 
+12/4/2014
+
+
+
+
+
+
+
+=========================
+
 12/2/2014  9 pm
 
 Project updated to add data to map using D3 instead of Leaflet.  Next steps will be to:
@@ -14,7 +24,7 @@ Prior leaflet based mapping code was saved into a file called script_leaflet.js
 
 
 
-===========
+=========================
 
 11/29 code, commited on 12/2/2014 8 pm - SHA bdf2dcfecd2b1537c8f86b5329c3b1668490827d
 

@@ -28,3 +28,14 @@ header {
 }
 
 
+/*style d3*/
+path {
+  fill: #000;
+  fill-opacity: .2;
+  stroke: #fff;
+  stroke-width: 0.5px;
+}
+path:hover {
+  fill: brown;
+  fill-opacity: .7;
+}
