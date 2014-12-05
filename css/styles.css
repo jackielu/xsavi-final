@@ -1,5 +1,6 @@
 body {
 /*	background-color: #f6e8c3;*/
+	font: 10px sans-serif;
 	line-height: 1.62;
 }
 
@@ -14,7 +15,7 @@ header {
 }
 
 .bar text {
-  fill: #fff;
+/*  fill: #fff;*/
 }
 
 .axis path, .axis line {

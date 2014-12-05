@@ -25,7 +25,7 @@ var svg = d3.select(map.getPanes().overlayPane).append("svg"), g = svg.append("g
 
 //d3.json call starts here
 d3.json("data/landcoversumm.geojson", function(lcData) {
-	window.test = lcData;
+	//window.test = lcData;
 	//console.log(lcData);
 	var transform = d3.geo.transform({point: projectPoint}),
       path = d3.geo.path().projection(transform);
@@ -69,27 +69,26 @@ d3.json("data/landcoversumm.geojson", function(lcData) {
 
 
 
-//start creating D3 histogram round 1
+//start creating D3 histogram round 
 
-	//select the hist div and define it as a variable
-	var hist = d3.select("#hist");
-	//define the margin of the SVG rectangle
-	var marginH = {top: 0, right: 0, bottom: 0, left: 10};
-	//dimension of the SVG rectangle
-	var widthH = 960 - marginH.left - marginH.right,
-	    heightH = 180 - marginH.top - marginH.bottom;
+//select the hist div and define it as a variable
+var hist = d3.select("#hist");
+//define the margin of the SVG rectangle
+var marginH = {top: 0, right: 0, bottom: 0, left: 0};
+//dimension of the SVG rectangle
+var widthH = 960 - marginH.left - marginH.right,
+    heightH = 180 - marginH.top - marginH.bottom;
 
-	//create the SVG rectangle
-	var svgH = hist.append("svg")
-	    .attr("width", widthH)
-	    .attr("height", heightH)
-	  .append("g")
-	    .attr("transform", "translate(" + marginH.left + "," + marginH.top + ")");
+//create the SVG rectangle
+var svgH = hist.append("svg")
+    .attr("width", widthH)
+    .attr("height", heightH + 20)
+  .append("g")
+    .attr("transform", "translate(" + marginH.left + "," + marginH.top + ")");
 
-	var x = d3.scale.linear()
-		.domain([0,100])
-		.range([0,widthH]);
-
+var x = d3.scale.linear()
+	.domain([0,100])
+	.range([0,widthH]);
 
 
 var array = [];
@@ -106,7 +105,7 @@ function getArray(data) {
 
 //function that is pass the data to create the historgram
 function drawChart(data){
-	window.test2 = data;
+	//window.test2 = data;
   var makeRoundP = d3.format(".3p") //a function for formatting numbers
 
   //a formatter for counts
@@ -118,6 +117,8 @@ function drawChart(data){
   var histBinnedData = d3.layout.histogram()
   	.bins(x.ticks(20))
   	(array);
+
+  //window.test3 = histBinnedData;
 
   var y = d3.scale.linear()    
   	.domain([0, d3.max(histBinnedData, function(d) { return d.y; })])
@@ -134,15 +135,16 @@ function drawChart(data){
 	    .attr("transform", function(d) { return "translate(" + x(d.x) + "," + y(d.y) + ")"; });
 
 	bar.append("rect")
-	    .attr("x", 1)
+	    .attr("x", 0)
+	    .attr("y", function (d) {heightH - y(d.y);})
 	    .attr("width", x(histBinnedData[0].dx) - 1)
 	    .attr("height", function(d) { return heightH - y(d.y); });
 
 	bar.append("text")
 	    .attr("dy", ".75em")
 	    .attr("y", 6)
-	    .attr("x", x(histBinnedData[0].dx) / 2)
-	    .attr("text-anchor", "middle")
+	    .attr("x", x(histBinnedData[0].dx)/2)
+	    .attr("text-anchor", "top")
 	    .text(function(d) { return formatCount(d.y); });
 
 	svgH.append("g")
