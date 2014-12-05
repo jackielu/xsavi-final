@@ -8,6 +8,20 @@ header {
 /*	background-color: #80cdc1;*/
 }
 
+.bar rect {
+  fill: steelblue;
+  shape-rendering: crispEdges;
+}
+
+.bar text {
+  fill: #fff;
+}
+
+.axis path, .axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
 
 
 #map {
@@ -21,7 +35,9 @@ header {
 	height: 600px;
 }
 
-
+#hist {
+	overflow: scroll;
+}
 
 .highlight {
 	background:steelblue;

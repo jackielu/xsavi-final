@@ -4,7 +4,10 @@ Final project in progress for XSAVI-780
 
 12/4/2014
 
+Added D3 histogram (that isn't working well)
 
+Next steps: 
+- add classes to the choropleth
 
 
 

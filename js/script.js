@@ -15,7 +15,7 @@ function makeDivs(feature, layer) {
 	+'>'
 	+ feature.properties.UniqueID
 	+ '</p>')
-}
+};
 
 
 //set up D3 SVG for map
@@ -25,7 +25,7 @@ var svg = d3.select(map.getPanes().overlayPane).append("svg"), g = svg.append("g
 
 //d3.json call starts here
 d3.json("data/landcoversumm.geojson", function(lcData) {
-	//window.test = lcData;
+	window.test = lcData;
 	//console.log(lcData);
 	var transform = d3.geo.transform({point: projectPoint}),
       path = d3.geo.path().projection(transform);
@@ -34,7 +34,7 @@ d3.json("data/landcoversumm.geojson", function(lcData) {
 
     //assign a class to a D3 feature based on data attributes
     feature.attr('id',function(d) {return d.properties.UniqueID;})
-      	.on('click',function(d) {alert(d.properties.UniqueID)});
+      	//.on('click',function(d) {alert(d.properties.UniqueID)});
 
     map.on("viewreset", reset);
     reset();
@@ -55,21 +55,131 @@ d3.json("data/landcoversumm.geojson", function(lcData) {
 	    feature.attr("d", path);
 	  }
 
-
 	// Use Leaflet to implement a D3 geometric transformation.
 	  function projectPoint(x, y) {
 	    var point = map.latLngToLayerPoint(new L.LatLng(y, x));
 	    this.stream.point(point.x, point.y);
 	  }
+
+	  drawChart(lcData);
+
 	});  
 //end d3json call
 
 
 
-//getJSON call for creating divs
+
+//start creating D3 histogram round 1
+
+	//select the hist div and define it as a variable
+	var hist = d3.select("#hist");
+	//define the margin of the SVG rectangle
+	var marginH = {top: 0, right: 0, bottom: 0, left: 10};
+	//dimension of the SVG rectangle
+	var widthH = 960 - marginH.left - marginH.right,
+	    heightH = 180 - marginH.top - marginH.bottom;
+
+	//create the SVG rectangle
+	var svgH = hist.append("svg")
+	    .attr("width", widthH)
+	    .attr("height", heightH)
+	  .append("g")
+	    .attr("transform", "translate(" + marginH.left + "," + marginH.top + ")");
+
+	var x = d3.scale.linear()
+		.domain([0,100])
+		.range([0,widthH]);
+
+
+
+var array = [];
+
+//function to create arrays from "columns" of attribute data
+function getArray(data) {
+	for (var i=0; i< data.features.length; i++) {
+	array.push(data.features[i].properties.Can_P);
+	array;
+	}
+}
+
+
+
+//function that is pass the data to create the historgram
+function drawChart(data){
+	window.test2 = data;
+  var makeRoundP = d3.format(".3p") //a function for formatting numbers
+
+  //a formatter for counts
+  var formatCount = d3.format(",.0f");
+
+  getArray(data);
+
+  //grab the values you need and bin them
+  var histBinnedData = d3.layout.histogram()
+  	.bins(x.ticks(20))
+  	(array);
+
+  var y = d3.scale.linear()    
+  	.domain([0, d3.max(histBinnedData, function(d) { return d.y; })])
+  	.range([heightH, 0]);
+
+  var xAxis = d3.svg.axis()
+    .scale(x)
+	.orient("bottom");
+
+	var bar = svgH.selectAll(".bar")
+	    .data(histBinnedData)
+	  .enter().append("g")
+	    .attr("class", "bar")
+	    .attr("transform", function(d) { return "translate(" + x(d.x) + "," + y(d.y) + ")"; });
+
+	bar.append("rect")
+	    .attr("x", 1)
+	    .attr("width", x(histBinnedData[0].dx) - 1)
+	    .attr("height", function(d) { return heightH - y(d.y); });
+
+	bar.append("text")
+	    .attr("dy", ".75em")
+	    .attr("y", 6)
+	    .attr("x", x(histBinnedData[0].dx) / 2)
+	    .attr("text-anchor", "middle")
+	    .text(function(d) { return formatCount(d.y); });
+
+	svgH.append("g")
+	    .attr("class", "x axis")
+	    .attr("transform", "translate(0," + heightH + ")")
+	    .call(xAxis);
+
+
+  // var barGroup = svg.selectAll("g.barGroup")
+  //   .data(data)
+  //   .enter()
+  //   .append("g")
+  //   .attr("class", function(d){ return "barGroup x-" + d.properties.OBJECTID; })
+  //   .attr("transform", function(d){ return "translate(" + (d.properties.OBJECTID)*25 + ",50)"; });
+
+  // var bars = barGroup
+  //   .append("rect")
+  //   .attr("height", function(d){ return (d.properties.Can_P)*5 ; })
+  //   .attr("width", 10)
+  //   .style("fill", "#99d594");
+
+  // var barText = barGroup
+  //   .append("text")
+  //   .attr("x",".5em")
+  //   .attr("dy", "1.1em")
+  //   .text(function(d){ return makeRoundP(d.properties.Can_P/100); });
+}
+
+
+
+
+
+//getJSON call for creating divs  FIX THIS WHEN YOU CAN, using d3.json again
 $.getJSON("data/landcoversumm.geojson", function(lcData) {
 	//window.test = data;
 	var geojsonLayer = L.geoJson(lcData.features, {
 		onEachFeature: makeDivs
 	})
 })
+//end getJSON call for creating divs
