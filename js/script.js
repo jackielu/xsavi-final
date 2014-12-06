@@ -82,13 +82,19 @@ var widthH = 960 - marginH.left - marginH.right,
 //create the SVG rectangle
 var svgH = hist.append("svg")
     .attr("width", widthH)
-    .attr("height", heightH + 20)
+    .attr("height", heightH)
   .append("g")
     .attr("transform", "translate(" + marginH.left + "," + marginH.top + ")");
 
+
+//padding value to push the elements in away from the edges of the SVG
+var padding = 30
+
+//define the xScale
 var xScale = d3.scale.linear()
 	.domain([0,100])
-	.range([0,widthH]);
+	.range([padding, widthH - padding]);
+
 
 
 var array = [];
@@ -121,8 +127,13 @@ function drawChart(data){
   //window.test3 = histBinnedData;
 
   var yScale = d3.scale.linear()    
-  	.domain([0, d3.max(histBinnedData, function(d) { return d.y; })])
-  	.range([heightH, 0]);
+  	.domain([0, 100])
+  	.range([heightH - padding, padding]);
+
+
+  // var yScale = d3.scale.linear()    
+  // 	.domain([0, d3.max(histBinnedData, function(d) { return d.y; })])
+  // 	.range([heightH - padding, padding]);
 
   var xAxis = d3.svg.axis()
     .scale(xScale)
@@ -140,26 +151,25 @@ function drawChart(data){
 
 	bar.append("rect")
 	    .attr("x", 0)
-	    .attr("y", function (d) {heightH - yScale(d.y);})
-	    .attr("width", xScale(histBinnedData[0].dx) - 1)
-	    .attr("height", function(d) { return heightH - yScale(d.y); });
+	    .attr("y", function (d) { (heightH - padding) - yScale(d.y);})
+	    .attr("width", xScale(histBinnedData[0].dx)/2)
+	    .attr("height", function(d) { return (heightH - padding) - yScale(d.y); });
 
 	bar.append("text")
 	    .attr("dy", ".75em")
-	    .attr("y", -4)
-	    .attr("x", xScale(histBinnedData[0].dx)/2)
+	    .attr("y", -10)
+	    .attr("x", xScale(histBinnedData[0].dx)/5)
 	    .attr("text-anchor", "top")
 	    .text(function(d) { return formatCount(d.y); });
 
 	svgH.append("g")
 	    .attr("class", "x axis")
-	    .attr("transform", "translate(0," + heightH + ")")
+	    .attr("transform", "translate(0," + (heightH - padding) + ")")
 	    .call(xAxis);
 
 	svgH.append("g")
 	    .attr("class", "y axis")
-	    // .attr("transform", "translate(0," + widthH + ")")
-	    // .attr("transform", "translate(" + widthH + ",0)")
+	    .attr("transform", "translate(" + padding + ",0)")
 	    .call(yAxis);
 
 
