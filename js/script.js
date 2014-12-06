@@ -86,7 +86,7 @@ var svgH = hist.append("svg")
   .append("g")
     .attr("transform", "translate(" + marginH.left + "," + marginH.top + ")");
 
-var x = d3.scale.linear()
+var xScale = d3.scale.linear()
 	.domain([0,100])
 	.range([0,widthH]);
 
@@ -115,35 +115,39 @@ function drawChart(data){
 
   //grab the values you need and bin them
   var histBinnedData = d3.layout.histogram()
-  	.bins(x.ticks(20))
+  	.bins(xScale.ticks(20))
   	(array);
 
   //window.test3 = histBinnedData;
 
-  var y = d3.scale.linear()    
+  var yScale = d3.scale.linear()    
   	.domain([0, d3.max(histBinnedData, function(d) { return d.y; })])
   	.range([heightH, 0]);
 
   var xAxis = d3.svg.axis()
-    .scale(x)
+    .scale(xScale)
 	.orient("bottom");
+
+  var yAxis = d3.svg.axis()
+  	.scale(yScale)
+  	.orient("left")
 
 	var bar = svgH.selectAll(".bar")
 	    .data(histBinnedData)
 	  .enter().append("g")
 	    .attr("class", "bar")
-	    .attr("transform", function(d) { return "translate(" + x(d.x) + "," + y(d.y) + ")"; });
+	    .attr("transform", function(d) { return "translate(" + xScale(d.x) + "," + yScale(d.y) + ")"; });
 
 	bar.append("rect")
 	    .attr("x", 0)
-	    .attr("y", function (d) {heightH - y(d.y);})
-	    .attr("width", x(histBinnedData[0].dx) - 1)
-	    .attr("height", function(d) { return heightH - y(d.y); });
+	    .attr("y", function (d) {heightH - yScale(d.y);})
+	    .attr("width", xScale(histBinnedData[0].dx) - 1)
+	    .attr("height", function(d) { return heightH - yScale(d.y); });
 
 	bar.append("text")
 	    .attr("dy", ".75em")
-	    .attr("y", 6)
-	    .attr("x", x(histBinnedData[0].dx)/2)
+	    .attr("y", -4)
+	    .attr("x", xScale(histBinnedData[0].dx)/2)
 	    .attr("text-anchor", "top")
 	    .text(function(d) { return formatCount(d.y); });
 
@@ -151,6 +155,12 @@ function drawChart(data){
 	    .attr("class", "x axis")
 	    .attr("transform", "translate(0," + heightH + ")")
 	    .call(xAxis);
+
+	svgH.append("g")
+	    .attr("class", "y axis")
+	    // .attr("transform", "translate(0," + widthH + ")")
+	    // .attr("transform", "translate(" + widthH + ",0)")
+	    .call(yAxis);
 
 
   // var barGroup = svg.selectAll("g.barGroup")
