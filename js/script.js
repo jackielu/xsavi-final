@@ -202,6 +202,7 @@ function drawChart(data){
 	    .attr("y", function (d) { (heightH - padding) - yScale(d.y);})
 	    .attr("width", xScale(histBinnedData[0].dx)/2)
 	    .attr("height", function(d) { return (heightH - padding) - yScale(d.y); })
+    	//color the bars the same way you do the polygons in the choropleth
     	.style("fill", function(d) {
                         //Get data value
                         var value = d.x;
@@ -214,8 +215,12 @@ function drawChart(data){
                                 return "#fff";
                         }
            })
-    	.attr('bin', function(d) {return color(d.x);})     
-    	.on('click',function(d) {return alert(color(d.x))})
+    	.attr('bin', function (d) {return color(d.x);})     
+    	// .on('click',function(d) {return alert(color(d.x))})
+    	.on('click',function (d) { 
+    		return d3.selectAll(color(d.x))
+    		.style("fill", "#FFFFB2")
+    	})
     	// .on('click',function(d) {alert(d.bin)})
 
 

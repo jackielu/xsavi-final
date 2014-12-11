@@ -10,6 +10,9 @@ Able to assign corresponding "bin" attr (based on the style color) to both Path 
 
 But how to upon click event on one of the rects in the histogram, select path polys with correspding "bin", and apply a new style?
 
+TO CHECK:
+- are your histogram bins and choropleth quantize actually the same?
+
 
 
 =========================
