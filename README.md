@@ -1,6 +1,18 @@
 
 Final project in progress for XSAVI-780
 
+=========================
+12/11/2014
+
+Color ramps applied to both histogram and to the choropleth
+
+Able to assign corresponding "bin" attr (based on the style color) to both Path polys and Rects that represent the same range (as evidenced by alerts)
+
+But how to upon click event on one of the rects in the histogram, select path polys with correspding "bin", and apply a new style?
+
+
+
+=========================
 
 12/4/2014
 

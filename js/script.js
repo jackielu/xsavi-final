@@ -1,10 +1,21 @@
 //set up our Leaflet map
-var map = L.map('map').setView([40.7056258,-73.97968], 11)
+var map = L.map('map').setView([40.7056258,-73.97968], 10)
 
-var Esri_WorldGrayCanvas = L.tileLayer('http://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
-	attribution: 'Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ',
-	maxZoom: 16
+// var Esri_WorldGrayCanvas = L.tileLayer('http://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
+// 	attribution: 'Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ',
+// 	maxZoom: 16
+// }).addTo(map);
+
+
+var CartoDB_DarkMatter = L.tileLayer('http://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png',{
+  attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="http://cartodb.com/attributions">CartoDB</a>',
+	minZoom: 10,
+	maxZoom: 18
 }).addTo(map);
+
+
+
+
 
 
 //create divs with IDs from the data
@@ -21,19 +32,55 @@ function makeDivs(feature, layer) {
 //set up D3 SVG for map
 var svg = d3.select(map.getPanes().overlayPane).append("svg"), g = svg.append("g").attr("class", "leaflet-zoom-hide");
 
+
+// //set up scale that takes data values as input and outputs colors
+// var color = d3.scale.quantize()
+//                     .range(["rgb(237,248,233)", "rgb(186,228,179)",
+//                      "rgb(116,196,118)", "rgb(49,163,84)","rgb(0,109,44)"]);
+
+//set up scale that takes data values as input and outputs colors
+var color = d3.scale.quantize()
+                    .range(["#d9d9d9", "#f7fcf5", "#e5f5e0", "#c7e9c0", "#a1d99b", "#74c476", "#41ab5d", "#238b45", "#006d2c", "#00441b"]);
+
 //code to add D3 polygon data to the map is based on http://bost.ocks.org/mike/leaflet/
 
 //d3.json call starts here
 d3.json("data/landcoversumm.geojson", function(lcData) {
-	//window.test = lcData;
+	window.test = lcData;
 	//console.log(lcData);
+
+	color.domain([
+                d3.min(lcData.features, function(d) { return d.properties.Can_P; }),
+                d3.max(lcData.features, function(d) { return d.properties.Can_P; })        
+    ]);
+
+
 	var transform = d3.geo.transform({point: projectPoint}),
       path = d3.geo.path().projection(transform);
 
-    var feature = g.selectAll("path").data(lcData.features).enter().append("path");
+    var feature = g.selectAll("path")
+    	.data(lcData.features)
+    	.enter()
+    	.append("path")
+    	.attr("d",path)
+    	.style("fill", function(d) {
+                                //Get data value
+                                var value = d.properties.Can_P;
+                                //window.test=value;
+                                if (value) {
+                                        //If value exists…
+                                        return color(value);
+                                } else {
+                                        //If value is undefined…
+                                        return "#fff";
+                                }
+                   });
 
     //assign a class to a D3 feature based on data attributes
     feature.attr('id',function(d) {return d.properties.UniqueID;})
+    	.attr('class', function(d) {return d.properties.Can_P;})
+    	.attr('bin', function(d) {return color(d.properties.Can_P);})
+    	.on('click',function(d) {alert(color(d.properties.Can_P))});
       	//.on('click',function(d) {alert(d.properties.UniqueID)});
 
     map.on("viewreset", reset);
@@ -76,7 +123,7 @@ var hist = d3.select("#hist");
 //define the margin of the SVG rectangle
 var marginH = {top: 0, right: 0, bottom: 0, left: 0};
 //dimension of the SVG rectangle
-var widthH = 960 - marginH.left - marginH.right,
+var widthH = 940 - marginH.left - marginH.right,
     heightH = 180 - marginH.top - marginH.bottom;
 
 //create the SVG rectangle
@@ -94,7 +141,6 @@ var padding = 30
 var xScale = d3.scale.linear()
 	.domain([0,100])
 	.range([padding, widthH - padding]);
-
 
 
 var array = [];
@@ -121,23 +167,25 @@ function drawChart(data){
 
   //grab the values you need and bin them
   var histBinnedData = d3.layout.histogram()
-  	.bins(xScale.ticks(20))
+  	.bins(xScale.ticks(10))
   	(array);
 
   //window.test3 = histBinnedData;
 
-  var yScale = d3.scale.linear()    
-  	.domain([0, 100])
-  	.range([heightH - padding, padding]);
-
-
   // var yScale = d3.scale.linear()    
-  // 	.domain([0, d3.max(histBinnedData, function(d) { return d.y; })])
+  // 	.domain([0, 100])
   // 	.range([heightH - padding, padding]);
+
+
+  var yScale = d3.scale.linear()    
+  	.domain([0, d3.max(histBinnedData, function(d) { return d.y; })])
+  	.range([heightH - padding, padding])
+  	.nice();
 
   var xAxis = d3.svg.axis()
     .scale(xScale)
-	.orient("bottom");
+	.orient("bottom")
+	.tickFormat(function(d) { return d + "%"; });
 
   var yAxis = d3.svg.axis()
   	.scale(yScale)
@@ -145,7 +193,7 @@ function drawChart(data){
 
 	var bar = svgH.selectAll(".bar")
 	    .data(histBinnedData)
-	  .enter().append("g")
+	    .enter().append("g")
 	    .attr("class", "bar")
 	    .attr("transform", function(d) { return "translate(" + xScale(d.x) + "," + yScale(d.y) + ")"; });
 
@@ -153,7 +201,24 @@ function drawChart(data){
 	    .attr("x", 0)
 	    .attr("y", function (d) { (heightH - padding) - yScale(d.y);})
 	    .attr("width", xScale(histBinnedData[0].dx)/2)
-	    .attr("height", function(d) { return (heightH - padding) - yScale(d.y); });
+	    .attr("height", function(d) { return (heightH - padding) - yScale(d.y); })
+    	.style("fill", function(d) {
+                        //Get data value
+                        var value = d.x;
+                        //window.test=value;
+                        if (value) {
+                                //If value exists…
+                                return color(value);
+                        } else {
+                                //If value is undefined…
+                                return "#fff";
+                        }
+           })
+    	.attr('bin', function(d) {return color(d.x);})     
+    	.on('click',function(d) {return alert(color(d.x))})
+    	// .on('click',function(d) {alert(d.bin)})
+
+
 
 	bar.append("text")
 	    .attr("dy", ".75em")
