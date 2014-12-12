@@ -170,7 +170,7 @@ function drawChart(data){
   	.bins(xScale.ticks(10))
   	(array);
 
-  //window.test3 = histBinnedData;
+  window.test3 = histBinnedData;
 
   // var yScale = d3.scale.linear()    
   // 	.domain([0, 100])
@@ -217,9 +217,11 @@ function drawChart(data){
            })
     	.attr('bin', function (d) {return color(d.x);})     
     	// .on('click',function(d) {return alert(color(d.x))})
-    	.on('click',function (d) { 
-    		return d3.selectAll(color(d.x))
-    		.style("fill", "#FFFFB2")
+    	// .on('click',function (d) { 
+    	// 	return d3.selectAll(color(d.x))
+    	// 	.style("fill", "#FFFFB2")
+    	.on('click', function (d) {d3.selectAll("[bin='"+color(d.x)+"']")
+    		.style("fill","#FFFFB2")
     	})
     	// .on('click',function(d) {alert(d.bin)})
 
