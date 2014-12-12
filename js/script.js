@@ -49,10 +49,12 @@ d3.json("data/landcoversumm.geojson", function(lcData) {
 	window.test = lcData;
 	//console.log(lcData);
 
-	color.domain([
-                d3.min(lcData.features, function(d) { return d.properties.Can_P; }),
-                d3.max(lcData.features, function(d) { return d.properties.Can_P; })        
-    ]);
+	color.domain([0, 100]);
+
+	// color.domain([
+ //                d3.min(lcData.features, function(d) { return d.properties.Can_P; }),
+ //                d3.max(lcData.features, function(d) { return d.properties.Can_P; }       
+ //    ]);
 
 
 	var transform = d3.geo.transform({point: projectPoint}),
@@ -80,7 +82,7 @@ d3.json("data/landcoversumm.geojson", function(lcData) {
     feature.attr('id',function(d) {return d.properties.UniqueID;})
     	.attr('class', function(d) {return d.properties.Can_P;})
     	.attr('bin', function(d) {return color(d.properties.Can_P);})
-    	.on('click',function(d) {alert(color(d.properties.Can_P))});
+    	.on('click',function(d) {alert(d.properties.Can_P + "% canopy and" + color(d.properties.Can_P))});
       	//.on('click',function(d) {alert(d.properties.UniqueID)});
 
     map.on("viewreset", reset);
@@ -170,7 +172,7 @@ function drawChart(data){
   	.bins(xScale.ticks(10))
   	(array);
 
-  window.test3 = histBinnedData;
+  // window.test3 = histBinnedData;
 
   // var yScale = d3.scale.linear()    
   // 	.domain([0, 100])
@@ -217,11 +219,19 @@ function drawChart(data){
            })
     	.attr('bin', function (d) {return color(d.x);})     
     	// .on('click',function(d) {return alert(color(d.x))})
-    	// .on('click',function (d) { 
-    	// 	return d3.selectAll(color(d.x))
-    	// 	.style("fill", "#FFFFB2")
-    	.on('click', function (d) {d3.selectAll("[bin='"+color(d.x)+"']")
-    		.style("fill","#FFFFB2")
+    	// .on('click', function (d) {
+    	// 	d3.selectAll("[bin='"+color(d.x)+"']")
+    	// 	.style("fill","#F1B6DA");
+    	// 	console.log(d3.selectAll("[bin='"+color(d.x)+"']"))
+    	// })
+    	.on('mouseover', function (d) {
+    		d3.selectAll("[bin='"+color(d.x)+"']")
+    		.style("fill","#F1B6DA");
+    		// console.log(d3.selectAll("[bin='"+color(d.x)+"']"))
+    	})
+    	.on('mouseout', function (d) {
+    		d3.selectAll("[bin='"+color(d.x)+"']")
+    		.style("fill",color(d.x));
     	})
     	// .on('click',function(d) {alert(d.bin)})
 
@@ -234,15 +244,30 @@ function drawChart(data){
 	    .attr("text-anchor", "top")
 	    .text(function(d) { return formatCount(d.y); });
 
-	svgH.append("g")
+	var xAxis2 = svgH.append("g")
 	    .attr("class", "x axis")
 	    .attr("transform", "translate(0," + (heightH - padding) + ")")
 	    .call(xAxis);
 
-	svgH.append("g")
+	xAxis2.append("text")
+		.attr("x", 260)
+		.attr("y", -5)
+		.attr("text-anchor", "middle")
+		.text("Canopy Percentage")
+
+	var yAxis2 = svgH.append("g")
 	    .attr("class", "y axis")
 	    .attr("transform", "translate(" + padding + ",0)")
 	    .call(yAxis);
+
+	// yAxis2.append("text")
+	//     .attr("class", "y axis")
+	//     .attr("text-anchor", "middle")
+	//     .attr("x", 0)
+	//     .attr("y", -5)
+	//     .attr("dy", ".75em")
+	//     .attr("transform", "rotate(-90)")
+	//     .text("Count");
 
 
   // var barGroup = svg.selectAll("g.barGroup")
