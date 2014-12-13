@@ -1,11 +1,5 @@
 //set up our Leaflet map
-var map = L.map('map').setView([40.7056258,-73.97968], 10)
-
-// var Esri_WorldGrayCanvas = L.tileLayer('http://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
-// 	attribution: 'Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ',
-// 	maxZoom: 16
-// }).addTo(map);
-
+var map = L.map('map').setView([40.7056258,-73.97968], 11)
 
 var CartoDB_DarkMatter = L.tileLayer('http://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png',{
   attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="http://cartodb.com/attributions">CartoDB</a>',
@@ -16,31 +10,19 @@ var CartoDB_DarkMatter = L.tileLayer('http://{s}.basemaps.cartocdn.com/dark_all/
 
 
 
+//set up D3 SVG for map by adding SVG element to Leaflet’s overlay pane. Leaflet automatically repositions the overlay pane when the map pans. Note that the SVG element is initialized with no width or height; the dimensions must be set dynamically because they change on zoom. 
+var svgMap = d3.select(map.getPanes().overlayPane)
+	.append("svg");
 
-
-//create divs with IDs from the data
-function makeDivs(feature, layer) {
-	$('#geoList').append(
-	'<p id='
-	+ feature.properties.UniqueID
-	+'>'
-	+ feature.properties.UniqueID
-	+ '</p>')
-};
-
-
-//set up D3 SVG for map
-var svg = d3.select(map.getPanes().overlayPane).append("svg"), g = svg.append("g").attr("class", "leaflet-zoom-hide");
-
-
-// //set up scale that takes data values as input and outputs colors
-// var color = d3.scale.quantize()
-//                     .range(["rgb(237,248,233)", "rgb(186,228,179)",
-//                      "rgb(116,196,118)", "rgb(49,163,84)","rgb(0,109,44)"]);
+//Inside the SVG, you’ll also need a G (group) element. This will be used to translate the SVG elements so that the top-left corner of the SVG, ⟨0,0⟩, corresponds to Leaflet’s layer origin. The leaflet-zoom-hide class is needed so that the overlay is hidden during Leaflet’s zoom animation; alternatively, you could disable the animation using the zoomAnimation option when constructing the map.
+var gMap = svgMap.append("g")
+	.attr("class", "leaflet-zoom-hide");
 
 //set up scale that takes data values as input and outputs colors
 var color = d3.scale.quantize()
-                    .range(["#d9d9d9", "#f7fcf5", "#e5f5e0", "#c7e9c0", "#a1d99b", "#74c476", "#41ab5d", "#238b45", "#006d2c", "#00441b"]);
+                    .range(["#d9d9d9", "#f7fcf5", "#e5f5e0", "#c7e9c0", "#a1d99b", "#74c476", "#41ab5d", "#238b45", "#006d2c", "#00441b"])
+                    .domain([0, 100]);
+
 
 //code to add D3 polygon data to the map is based on http://bost.ocks.org/mike/leaflet/
 
@@ -49,18 +31,12 @@ d3.json("data/landcoversumm.geojson", function(lcData) {
 	window.test = lcData;
 	//console.log(lcData);
 
-	color.domain([0, 100]);
-
-	// color.domain([
- //                d3.min(lcData.features, function(d) { return d.properties.Can_P; }),
- //                d3.max(lcData.features, function(d) { return d.properties.Can_P; }       
- //    ]);
-
-
+	// create a d3.geo.path to convert GeoJSON to SVG:
 	var transform = d3.geo.transform({point: projectPoint}),
       path = d3.geo.path().projection(transform);
 
-    var feature = g.selectAll("path")
+    // create path elements for each of the features using D3’s data join:
+    var feature = gMap.selectAll("path")
     	.data(lcData.features)
     	.enter()
     	.append("path")
@@ -89,22 +65,24 @@ d3.json("data/landcoversumm.geojson", function(lcData) {
     reset();
 
 
-  	// Reposition the SVG to cover the features.
+  	// Reposition the SVG to cover the features.  Comput the projected bounding box of our features using our custom transform to convert the longitude and latitude to pixels:
 	  function reset() {
 	    var bounds = path.bounds(lcData),
 	        topLeft = bounds[0],
 	        bottomRight = bounds[1];
-	        //here we are setting width and height of the attribute layer based on the bounds.
-	    svg .attr("width", bottomRight[0] - topLeft[0])
+	        //here we are setting width and height of the attribute layer based on the bounds.  
+
+	    //set the dimensions of the SVG with sufficient padding to display features above or to the left of the origin. this is part of "viewreset" event so SVG is repositioned and re-rendered whenever the map zooms
+	    svgMap .attr("width", bottomRight[0] - topLeft[0])
 	        .attr("height", bottomRight[1] - topLeft[1])
 	        .style("left", topLeft[0] + "px")
 	        .style("top", topLeft[1] + "px");
-	    g   .attr("transform", "translate(" + -topLeft[0] + "," + -topLeft[1] + ")");
+	    gMap   .attr("transform", "translate(" + -topLeft[0] + "," + -topLeft[1] + ")");
 	    //this is actually where we draw the shape on the map; out of the data that we passed turn this into an SVG attribute
 	    feature.attr("d", path);
 	  }
 
-	// Use Leaflet to implement a D3 geometric transformation.
+	// Use Leaflet to implement a D3 geometric transformation. A transform converts an input geometry (such as polygons in spherical geographic coordinates) to a different output geometry (such as polygons in projected screen coordinates). Using d3.geo.transform, it can be implemented as a simple function that projects individual points:
 	  function projectPoint(x, y) {
 	    var point = map.latLngToLayerPoint(new L.LatLng(y, x));
 	    this.stream.point(point.x, point.y);
@@ -117,13 +95,12 @@ d3.json("data/landcoversumm.geojson", function(lcData) {
 
 
 
-
 //start creating D3 histogram round 
 
 //select the hist div and define it as a variable
 var hist = d3.select("#hist");
 //define the margin of the SVG rectangle
-var marginH = {top: 0, right: 0, bottom: 0, left: 0};
+var marginH = {top: -20, right: 0, bottom: 0, left: 0};
 //dimension of the SVG rectangle
 var widthH = 940 - marginH.left - marginH.right,
     heightH = 180 - marginH.top - marginH.bottom;
@@ -137,7 +114,7 @@ var svgH = hist.append("svg")
 
 
 //padding value to push the elements in away from the edges of the SVG
-var padding = 30
+var padding = 40
 
 //define the xScale
 var xScale = d3.scale.linear()
@@ -219,11 +196,6 @@ function drawChart(data){
            })
     	.attr('bin', function (d) {return color(d.x);})     
     	// .on('click',function(d) {return alert(color(d.x))})
-    	// .on('click', function (d) {
-    	// 	d3.selectAll("[bin='"+color(d.x)+"']")
-    	// 	.style("fill","#F1B6DA");
-    	// 	console.log(d3.selectAll("[bin='"+color(d.x)+"']"))
-    	// })
     	.on('mouseover', function (d) {
     		d3.selectAll("[bin='"+color(d.x)+"']")
     		.style("fill","#F1B6DA");
@@ -234,8 +206,6 @@ function drawChart(data){
     		.style("fill",color(d.x));
     	})
     	// .on('click',function(d) {alert(d.bin)})
-
-
 
 	bar.append("text")
 	    .attr("dy", ".75em")
@@ -250,8 +220,8 @@ function drawChart(data){
 	    .call(xAxis);
 
 	xAxis2.append("text")
-		.attr("x", 260)
-		.attr("y", -5)
+		.attr("x", widthH / 2)
+		.attr("y", 30)
 		.attr("text-anchor", "middle")
 		.text("Canopy Percentage")
 
@@ -291,7 +261,17 @@ function drawChart(data){
 }
 
 
+// Old code for creating divs using Leaflet
 
+//create divs with IDs from the data
+function makeDivs(feature, layer) {
+	$('#geoList').append(
+	'<p class=place id='
+	+ feature.properties.UniqueID
+	+'>'
+	+ feature.properties.UniqueID
+	+ '</p>')
+};
 
 
 //getJSON call for creating divs  FIX THIS WHEN YOU CAN, using d3.json again
@@ -302,3 +282,5 @@ $.getJSON("data/landcoversumm.geojson", function(lcData) {
 	})
 })
 //end getJSON call for creating divs
+
+

@@ -1,5 +1,14 @@
 
 Final project in progress for XSAVI-780
+=========================
+
+Incorporated choropleth colors into the histogram
+
+Added x-axis
+Also incorporated interactivity between the graph and the map
+
+
+
 
 =========================
 12/11/2014
