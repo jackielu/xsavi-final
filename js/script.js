@@ -25,6 +25,10 @@ var color = d3.scale.quantize()
                     .range(["#d9d9d9", "#f7fcf5", "#e5f5e0", "#c7e9c0", "#a1d99b", "#74c476", "#41ab5d", "#238b45", "#006d2c", "#00441b"])
                     .domain([0, 100]);
 
+var colorImp = d3.scale.quantize()
+					.range(["#05201F","#0A3130","#104342","#175555","#1F696A", "#277C7F","#309195","#39A6AC","#43BBC3","#4DD1DC"])
+					.domain([0, 100]);
+
 
 //code to add D3 polygon data to the map is based on http://bost.ocks.org/mike/leaflet/
 
@@ -60,7 +64,7 @@ d3.json("data/landcoversumm.geojson", function(lcData) {
     feature.attr('id',function(d) {return d.properties.UniqueID;})
     	.attr('class', function(d) {return d.properties.Can_P;})
     	.attr('bin', function(d) {return color(d.properties.Can_P);})
-    	.on('click',function(d) {alert(d.properties.Can_P + "% canopy and" + d.properties.Imp + "% Imperv and" +color(d.properties.Can_P))});
+    	.on('click',function(d) {alert(d.properties.Can_P + "% canopy and" + d.properties.Imperv_P + "% Imperv and" +color(d.properties.Can_P))});
       	//.on('click',function(d) {alert(d.properties.UniqueID)});
 
     map.on("viewreset", reset);
@@ -96,38 +100,17 @@ d3.json("data/landcoversumm.geojson", function(lcData) {
 
 
 //this adds interactivity to the map - click on #imp_p.layer and the polygon update
-// d3.select("li#Imperv_P.layer")
-// 	.on("click", function(d){ 		
-// 		console.log(this);
-//     	d3.selectAll("path")
-// 	        .transition()
-// 	        .duration(2000)
-// 	    	.style("fill", function(d) {
-//                     //Get data value
-//                     //var value = d.properties.Imperv_P;
-//                     // window.test=value;
-//                     if (d.properties.Imperv_P) {
-//                             //If value exists…
-//                             return color(d.properties.Imperv_P);
-//                     } else {
-//                             //If value is undefined…
-//                             return "#fff";
-//                     }
-// 			});
-//     });
-
 d3.select("li#Imperv_P.layer")
-	.on("click", function(d){ 		
-		console.log(this.id);
+	.on("click", function(d){ 
+		//console.log(this);
     	d3.selectAll("path")
 	        .transition()
 	        .duration(2000)
 	    	.style("fill", function(d) {
 	    		value = d.properties.Imperv_P;
-                return color(value)
+                return colorImp(value);
 			});
     });
-
 
 
 //start creating D3 histogram round 
@@ -168,8 +151,7 @@ function getArray(data) {
 }
 
 
-
-//function that is pass the data to create the historgram
+//function that is pass the data to create the histogram
 function drawChart(data){
 	//window.test2 = data;
   var makeRoundP = d3.format(".3p") //a function for formatting numbers
@@ -185,11 +167,6 @@ function drawChart(data){
   	(array);
 
   // window.test3 = histBinnedData;
-
-  // var yScale = d3.scale.linear()    
-  // 	.domain([0, 100])
-  // 	.range([heightH - padding, padding]);
-
 
   var yScale = d3.scale.linear()    
   	.domain([0, d3.max(histBinnedData, function(d) { return d.y; })])
