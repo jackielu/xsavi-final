@@ -21,6 +21,14 @@ li {
 	border-radius: 2px;
 }
 
+p {
+	line-height: 1.62;
+	font-size: 1.5em;
+	margin: 5px;
+	padding: 5px;
+	border-radius: 2px;
+}
+
 .bar rect {
   shape-rendering: crispEdges;
   stroke: #242426;
@@ -39,15 +47,15 @@ rect:hover {
 
 .axis path, .axis line, .axis text {
   fill: none;
-  stroke: #000;
   shape-rendering: crispEdges;
   stroke: #fff;	
+  stroke-width: 1px;
   font: 10px sans-serif;
 }
 
 
 #map {
-	height: 600px;
+	height: 400px;
 	float: right;
 }
 
@@ -59,9 +67,10 @@ rect:hover {
 
 #layerList {
 /*	background-color: #bf812d;*/
+	position: absolute;
 	float: left;
-	left: 5%;
-	overflow: scroll;
+	display: block;
+	left: 2%;
 	z-index: 5;
 }
 

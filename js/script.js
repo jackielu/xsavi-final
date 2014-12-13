@@ -1,5 +1,5 @@
 //set up our Leaflet map
-var map = L.map('map').setView([40.7056258,-73.97968], 11)
+var map = L.map('map',{zoomControl:false}).setView([40.7056258,-73.97968], 11)
 
 var CartoDB_DarkMatter = L.tileLayer('http://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png',{
   attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="http://cartodb.com/attributions">CartoDB</a>',
@@ -8,6 +8,8 @@ var CartoDB_DarkMatter = L.tileLayer('http://{s}.basemaps.cartocdn.com/dark_all/
 }).addTo(map);
 
 
+//this adds a new zoom control in the specified position.  requires setting zoomControl:false in L.map
+L.control.zoom({position: "topright"}).addTo(map);
 
 
 //set up D3 SVG for map by adding SVG element to Leaflet’s overlay pane. Leaflet automatically repositions the overlay pane when the map pans. Note that the SVG element is initialized with no width or height; the dimensions must be set dynamically because they change on zoom. 
