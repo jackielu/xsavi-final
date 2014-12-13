@@ -19,6 +19,7 @@ li {
 	margin: 5px;
 	padding: 5px;
 	border-radius: 2px;
+	z-index: 5
 }
 
 p {
@@ -59,11 +60,6 @@ rect:hover {
 	float: right;
 }
 
-#geoList {
-/*	background-color: #bf812d;*/
-	overflow: scroll;
-	height: 600px;
-}
 
 #layerList {
 /*	background-color: #bf812d;*/

@@ -60,7 +60,7 @@ d3.json("data/landcoversumm.geojson", function(lcData) {
     feature.attr('id',function(d) {return d.properties.UniqueID;})
     	.attr('class', function(d) {return d.properties.Can_P;})
     	.attr('bin', function(d) {return color(d.properties.Can_P);})
-    	.on('click',function(d) {alert(d.properties.Can_P + "% canopy and" + color(d.properties.Can_P))});
+    	.on('click',function(d) {alert(d.properties.Can_P + "% canopy and" + d.properties.Imp + "% Imperv and" +color(d.properties.Can_P))});
       	//.on('click',function(d) {alert(d.properties.UniqueID)});
 
     map.on("viewreset", reset);
@@ -91,9 +91,42 @@ d3.json("data/landcoversumm.geojson", function(lcData) {
 	  }
 
 	  drawChart(lcData);
-
 	});  
 //end d3json call
+
+
+//this adds interactivity to the map - click on #imp_p.layer and the polygon update
+// d3.select("li#Imperv_P.layer")
+// 	.on("click", function(d){ 		
+// 		console.log(this);
+//     	d3.selectAll("path")
+// 	        .transition()
+// 	        .duration(2000)
+// 	    	.style("fill", function(d) {
+//                     //Get data value
+//                     //var value = d.properties.Imperv_P;
+//                     // window.test=value;
+//                     if (d.properties.Imperv_P) {
+//                             //If value exists…
+//                             return color(d.properties.Imperv_P);
+//                     } else {
+//                             //If value is undefined…
+//                             return "#fff";
+//                     }
+// 			});
+//     });
+
+d3.select("li#Imperv_P.layer")
+	.on("click", function(d){ 		
+		console.log(this.id);
+    	d3.selectAll("path")
+	        .transition()
+	        .duration(2000)
+	    	.style("fill", function(d) {
+	    		value = d.properties.Imperv_P;
+                return color(value)
+			});
+    });
 
 
 
@@ -240,27 +273,11 @@ function drawChart(data){
 	//     .attr("dy", ".75em")
 	//     .attr("transform", "rotate(-90)")
 	//     .text("Count");
-
-
-  // var barGroup = svg.selectAll("g.barGroup")
-  //   .data(data)
-  //   .enter()
-  //   .append("g")
-  //   .attr("class", function(d){ return "barGroup x-" + d.properties.OBJECTID; })
-  //   .attr("transform", function(d){ return "translate(" + (d.properties.OBJECTID)*25 + ",50)"; });
-
-  // var bars = barGroup
-  //   .append("rect")
-  //   .attr("height", function(d){ return (d.properties.Can_P)*5 ; })
-  //   .attr("width", 10)
-  //   .style("fill", "#99d594");
-
-  // var barText = barGroup
-  //   .append("text")
-  //   .attr("x",".5em")
-  //   .attr("dy", "1.1em")
-  //   .text(function(d){ return makeRoundP(d.properties.Can_P/100); });
 }
+
+
+
+
 
 
 // Old code for creating divs using Leaflet
