@@ -1,14 +1,21 @@
 
 Final project in progress for XSAVI-780
 =========================
+12/13/2014
 
-Incorporated choropleth colors into the histogram
+Now working BUT are hard coded: the Buildings and Impervious list elements when clicked updates the choropleth with appropriate values and new colors
+
+QUESTION - how to **ALSO** update the histograms based on clicking the buttons corresponding to different choropleths??
+
+(note: interactivity btwn histogram and choropleth no longer works after other choropleths are displayed)
+
+=========================
+12/12/2014
+
+Incorporated choropleth colors into the histogram for Percent Canopy
 
 Added x-axis
 Also incorporated interactivity between the graph and the map
-
-
-
 
 =========================
 12/11/2014

@@ -12,20 +12,28 @@ var CartoDB_DarkMatter = L.tileLayer('http://{s}.basemaps.cartocdn.com/dark_all/
 L.control.zoom({position: "topright"}).addTo(map);
 
 
-//set up D3 SVG for map by adding SVG element to Leaflet’s overlay pane. Leaflet automatically repositions the overlay pane when the map pans. Note that the SVG element is initialized with no width or height; the dimensions must be set dynamically because they change on zoom. 
+//Add SVG element for map to Leaflet’s overlay pane. Leaflet automatically repositions the overlay pane when the map pans. SVG dimensions are set dynamically b/c they change on zoom. 
 var svgMap = d3.select(map.getPanes().overlayPane)
 	.append("svg");
 
-//Inside the SVG, you’ll also need a G (group) element. This will be used to translate the SVG elements so that the top-left corner of the SVG, ⟨0,0⟩, corresponds to Leaflet’s layer origin. The leaflet-zoom-hide class is needed so that the overlay is hidden during Leaflet’s zoom animation; alternatively, you could disable the animation using the zoomAnimation option when constructing the map.
+//"g" group element used to translate so that top-left corner of the SVG, ⟨0,0⟩, corresponds to Leaflet’s layer origin. The leaflet-zoom-hide class hides overlay during Leaflet’s zoom animation.
 var gMap = svgMap.append("g")
 	.attr("class", "leaflet-zoom-hide");
 
-//set up scale that takes data values as input and outputs colors
-var color = d3.scale.quantize()
+//set up color scale that takes data values as input and outputs colors
+
+//color scale for initial Can_P value
+var colorCan = d3.scale.quantize()
                     .range(["#d9d9d9", "#f7fcf5", "#e5f5e0", "#c7e9c0", "#a1d99b", "#74c476", "#41ab5d", "#238b45", "#006d2c", "#00441b"])
                     .domain([0, 100]);
 
-var colorImp = d3.scale.quantize()
+//color scale for Build_P value
+var colorBuild = d3.scale.quantize()
+					.range(["#31130F","#471D1C","#5E292B","#76343C","#8D414F","#A44E65","#BA5D7D","#CF6D97","#E27FB3","#F392D0"])
+					.domain([0, 100]);
+
+//color scale for Imperv_P value
+var colorImperv = d3.scale.quantize()
 					.range(["#05201F","#0A3130","#104342","#175555","#1F696A", "#277C7F","#309195","#39A6AC","#43BBC3","#4DD1DC"])
 					.domain([0, 100]);
 
@@ -53,7 +61,7 @@ d3.json("data/landcoversumm.geojson", function(lcData) {
                                 //window.test=value;
                                 if (value) {
                                         //If value exists…
-                                        return color(value);
+                                        return colorCan(value);
                                 } else {
                                         //If value is undefined…
                                         return "#fff";
@@ -63,8 +71,8 @@ d3.json("data/landcoversumm.geojson", function(lcData) {
     //assign a class to a D3 feature based on data attributes
     feature.attr('id',function(d) {return d.properties.UniqueID;})
     	.attr('class', function(d) {return d.properties.Can_P;})
-    	.attr('bin', function(d) {return color(d.properties.Can_P);})
-    	.on('click',function(d) {alert(d.properties.Can_P + "% canopy and" + d.properties.Imperv_P + "% Imperv and" +color(d.properties.Can_P))});
+    	.attr('bin', function(d) {return colorCan(d.properties.Can_P);})
+    	.on('click',function(d) {alert(d.properties.Can_P + "% canopy and" + d.properties.Imperv_P + "% Imperv and" +colorCan(d.properties.Can_P))});
       	//.on('click',function(d) {alert(d.properties.UniqueID)});
 
     map.on("viewreset", reset);
@@ -88,32 +96,109 @@ d3.json("data/landcoversumm.geojson", function(lcData) {
 	    feature.attr("d", path);
 	  }
 
-	// Use Leaflet to implement a D3 geometric transformation. A transform converts an input geometry (such as polygons in spherical geographic coordinates) to a different output geometry (such as polygons in projected screen coordinates). Using d3.geo.transform, it can be implemented as a simple function that projects individual points:
+	// Use Leaflet to implement a D3 geometric transformation. 
 	  function projectPoint(x, y) {
 	    var point = map.latLngToLayerPoint(new L.LatLng(y, x));
 	    this.stream.point(point.x, point.y);
 	  }
 
+	//call the function that creates the histogram and appends it to the #hist div
 	  drawChart(lcData);
 	});  
-//end d3json call
+//END d3json call
 
 
-//this adds interactivity to the map - click on #imp_p.layer and the polygon update
+//this adds HARD CODED interactivity - click on #imp_p.layer button and the polygon update
 d3.select("li#Imperv_P.layer")
 	.on("click", function(d){ 
-		//console.log(this);
+		console.log(this);
     	d3.selectAll("path")
 	        .transition()
 	        .duration(2000)
 	    	.style("fill", function(d) {
 	    		value = d.properties.Imperv_P;
-                return colorImp(value);
+                return colorImperv(value);
 			});
     });
 
+d3.select("li#Build_P.layer")
+	.on("click", function(d){ 
+		console.log(this);
+    	d3.selectAll("path")
+	        .transition()
+	        .duration(2000)
+	    	.style("fill", function(d) {
+	    		value = d.properties.Build_P;
+                return colorBuild(value);
+			});
+    });
 
-//start creating D3 histogram round 
+d3.select("li#Can_P.layer")
+	.on("click", function(d){ 
+		console.log(this);
+    	d3.selectAll("path")
+	        .transition()
+	        .duration(2000)
+	    	.style("fill", function(d) {
+	    		value = d.properties.Can_P;
+                return colorCan(value);
+			});
+    });
+
+// TEST variable based interactivity W/ SINGLE FILL COLOR listeners for place button clicks
+// $('.layer').on("click",function (d){
+// 	console.log(this.id);  //what is the ID of what you clicked on?
+// 	var value = "d.properties." + this.id;
+// 	console.log(value);
+// 	d3.selectAll("path")
+// 	    .transition()
+// 	    .duration(2000)
+// 		.style("fill", "#C52034");
+// });
+
+
+// // TEST variable based interactivity W/ SINGLE FILL COLOR listeners for place button clicks
+// $('.layer').on("click",function (d){
+// 	console.log(this.id);  //what is the ID of what you clicked on?
+// 	d3.selectAll("path")
+// 	    .transition()
+// 	    .duration(2000)
+// 		.style("fill", function () {
+// 			if (this.id == "Build_P") {return "#C52034";} 
+// 			else {return "#1656A0";}
+// 		});
+// });
+
+// TEST variable based interactivity W/ SINGLE FILL COLOR listeners for place button clicks
+// $('.layer').on("click",function (d){
+// 	console.log(this.id);  //what is the ID of what you clicked on?
+// 	d3.selectAll("path")
+// 	    .transition()
+// 	    .duration(2000)
+// 		.style("fill", function () {
+// 			if (this.id == "Build_P") {return "#C52034";}
+// 			else if (this.id == "Imperv_P") {return "#1656A0";}
+// 			else {return "#fff"}
+// 		});
+// });
+
+
+// attempt to create listeners for place button clicks that uses a function to update map polys 
+// $('.layer').on("click",function (d){
+// 	console.log(this.id);  //what is the ID of what you clicked on?
+// 	var value = "d.properties." + this.id;
+// 	console.log(value);
+// 	d3.selectAll("path")
+// 	    .transition()
+// 	    .duration(2000)
+// 		.style("fill", function (){
+// 			return colorImp(value);
+// 			} 
+// 		);
+// });
+
+
+//BEGIN CODE FOR CREATING HISTOGRAM
 
 //select the hist div and define it as a variable
 var hist = d3.select("#hist");
@@ -139,10 +224,8 @@ var xScale = d3.scale.linear()
 	.domain([0,100])
 	.range([padding, widthH - padding]);
 
-
 var array = [];
-
-//function to create arrays from "columns" of attribute data
+//function to create arrays from "columns" of attribute data to bin in the histogram
 function getArray(data) {
 	for (var i=0; i< data.features.length; i++) {
 	array.push(data.features[i].properties.Can_P);
@@ -150,8 +233,16 @@ function getArray(data) {
 	}
 }
 
+var arrayImperv = [];
+function getArrayImperv(data) {
+	for (var i=0; i< data.features.length; i++) {
+	arrayImperv.push(data.features[i].properties.Imperv_P);
+	arrayImperv;
+	}
+}
 
-//function that is pass the data to create the histogram
+
+//function that is passed the data to create the histogram
 function drawChart(data){
 	//window.test2 = data;
   var makeRoundP = d3.format(".3p") //a function for formatting numbers
@@ -161,12 +252,20 @@ function drawChart(data){
 
   getArray(data);
 
+  getArrayImperv(data);
+
   //grab the values you need and bin them
   var histBinnedData = d3.layout.histogram()
   	.bins(xScale.ticks(10))
   	(array);
 
+  var histBinnedDataImperv = d3.layout.histogram()
+  	.bins(xScale.ticks(10))
+  	(arrayImperv);
+
   // window.test3 = histBinnedData;
+
+  //window.test4 = histBinnedDataImperv;
 
   var yScale = d3.scale.linear()    
   	.domain([0, d3.max(histBinnedData, function(d) { return d.y; })])
@@ -193,29 +292,29 @@ function drawChart(data){
 	    .attr("y", function (d) { (heightH - padding) - yScale(d.y);})
 	    .attr("width", xScale(histBinnedData[0].dx)/2)
 	    .attr("height", function(d) { return (heightH - padding) - yScale(d.y); })
-    	//color the bars the same way you do the polygons in the choropleth
+    	//color the bars the same way you do the polygons in the choropleth by using the color function on the value
     	.style("fill", function(d) {
                         //Get data value
                         var value = d.x;
                         //window.test=value;
                         if (value) {
                                 //If value exists…
-                                return color(value);
+                                return colorCan(value);
                         } else {
                                 //If value is undefined…
                                 return "#fff";
                         }
            })
-    	.attr('bin', function (d) {return color(d.x);})     
-    	// .on('click',function(d) {return alert(color(d.x))})
+    	.attr('bin', function (d) {return colorCan(d.x);})     
+    	// .on('click',function(d) {return alert(colorCan(d.x))})
     	.on('mouseover', function (d) {
-    		d3.selectAll("[bin='"+color(d.x)+"']")
+    		d3.selectAll("[bin='"+colorCan(d.x)+"']")
     		.style("fill","#F1B6DA");
-    		// console.log(d3.selectAll("[bin='"+color(d.x)+"']"))
+    		// console.log(d3.selectAll("[bin='"+colorCan(d.x)+"']"))
     	})
     	.on('mouseout', function (d) {
-    		d3.selectAll("[bin='"+color(d.x)+"']")
-    		.style("fill",color(d.x));
+    		d3.selectAll("[bin='"+colorCan(d.x)+"']")
+    		.style("fill",colorCan(d.x));
     	})
     	// .on('click',function(d) {alert(d.bin)})
 
@@ -241,42 +340,13 @@ function drawChart(data){
 	    .attr("class", "y axis")
 	    .attr("transform", "translate(" + padding + ",0)")
 	    .call(yAxis);
-
-	// yAxis2.append("text")
-	//     .attr("class", "y axis")
-	//     .attr("text-anchor", "middle")
-	//     .attr("x", 0)
-	//     .attr("y", -5)
-	//     .attr("dy", ".75em")
-	//     .attr("transform", "rotate(-90)")
-	//     .text("Count");
 }
+//END CODE FOR HISTOGRAM
 
-
-
-
-
-
-// Old code for creating divs using Leaflet
-
-//create divs with IDs from the data
-function makeDivs(feature, layer) {
-	$('#geoList').append(
-	'<p class=place id='
-	+ feature.properties.UniqueID
-	+'>'
-	+ feature.properties.UniqueID
-	+ '</p>')
-};
-
-
-//getJSON call for creating divs  FIX THIS WHEN YOU CAN, using d3.json again
-$.getJSON("data/landcoversumm.geojson", function(lcData) {
-	//window.test = data;
-	var geojsonLayer = L.geoJson(lcData.features, {
-		onEachFeature: makeDivs
-	})
-})
-//end getJSON call for creating divs
-
-
+//listeners for layer button hovers
+$('.layer').hover(function(){
+		// console.log(this);
+		$(this).toggleClass('hover');
+	}, function(){
+	$(this).toggleClass('hover');
+});
