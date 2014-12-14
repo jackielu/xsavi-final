@@ -1,6 +1,12 @@
 
 Final project in progress for XSAVI-780
 =========================
+12/14/2014
+
+Data Update On Click function running for Imperv but still not updating the histogram or feature attributes
+
+
+=========================
 12/13/2014
 
 Now working BUT are hard coded: the Buildings and Impervious list elements when clicked updates the choropleth with appropriate values and new colors
@@ -8,6 +14,8 @@ Now working BUT are hard coded: the Buildings and Impervious list elements when 
 QUESTION - how to **ALSO** update the histograms based on clicking the buttons corresponding to different choropleths??
 
 (note: interactivity btwn histogram and choropleth no longer works after other choropleths are displayed)
+
+
 
 =========================
 12/12/2014

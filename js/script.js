@@ -42,7 +42,7 @@ var colorImperv = d3.scale.quantize()
 
 //d3.json call starts here
 d3.json("data/landcoversumm.geojson", function(lcData) {
-	window.test = lcData;
+	//window.test = lcData;
 	//console.log(lcData);
 
 	// create a d3.geo.path to convert GeoJSON to SVG:
@@ -72,7 +72,7 @@ d3.json("data/landcoversumm.geojson", function(lcData) {
     feature.attr('id',function(d) {return d.properties.UniqueID;})
     	.attr('class', function(d) {return d.properties.Can_P;})
     	.attr('bin', function(d) {return colorCan(d.properties.Can_P);})
-    	.on('click',function(d) {alert(d.properties.Can_P + "% canopy and" + d.properties.Imperv_P + "% Imperv and" +colorCan(d.properties.Can_P))});
+    	.on('click',function(d) {alert(d.properties.Can_P + "% canopy and" + colorCan(d.properties.Can_P))});
       	//.on('click',function(d) {alert(d.properties.UniqueID)});
 
     map.on("viewreset", reset);
@@ -107,19 +107,60 @@ d3.json("data/landcoversumm.geojson", function(lcData) {
 	});  
 //END d3json call
 
-
-//this adds HARD CODED interactivity - click on #imp_p.layer button and the polygon update
-d3.select("li#Imperv_P.layer")
-	.on("click", function(d){ 
-		console.log(this);
-    	d3.selectAll("path")
-	        .transition()
+// ** Update data section (Called from the onclick)
+function updateDataImperv(lcData) {
+    // Get the data again
+	d3.json("data/landcoversumm.geojson", function(lcData) {
+	    // create path elements for each of the features using D3’s data join:
+	    var feature2 = gMap.selectAll("path")
+	    	.transition()
 	        .duration(2000)
 	    	.style("fill", function(d) {
-	    		value = d.properties.Imperv_P;
-                return colorImperv(value);
-			});
+	                                //Get data value
+	                                var value = d.properties.Imperv_P;
+	                                window.test=value;
+	                                if (value) {
+	                                        //If value exists…
+	                                        return colorImperv(value);
+	                                } else {
+	                                        //If value is undefined…
+	                                        return "#fff";
+	                                }
+	                   })
+	    	.attr('classImperv', function(d) {return d.properties.Imperv_P;})
+	    	.attr('binImperv', function(d) {return colorImperv(d.properties.Imperv_P);})
+	    	.on('click',function(d) {alert(d.properties.classImperv + "% impervious and" + d.properties.binImperv)});
+
+	    //assign a class to a D3 feature based on data attributes
+	    // feature2.attr('id',function(d) {return d.properties.UniqueID;})
+	    // 	.attr('class', function(d) {return d.properties.Imperv_P;})
+	    // 	.attr('bin', function(d) {return colorImperv(d.properties.Imperv_P);})
+	    // 	.on('click',function(d) {alert(d.properties.Imperv_P + "% impervious and" + colorImperv(d.properties.Imperv_P))});
+
+		//call the function that creates the histogram and appends it to the #hist div
+		drawChartImperv(lcData);
+	});
+}
+
+
+d3.select("li#Imperv_P.layer")
+	.on("click", function (d){ 
+		console.log(this);
+    	updateDataImperv(d);
     });
+
+//this adds HARD CODED interactivity - click on #imp_p.layer button and the polygon update
+// d3.select("li#Imperv_P.layer")
+// 	.on("click", function(d){ 
+// 		console.log(this);
+//     	d3.selectAll("path")
+// 	        .transition()
+// 	        .duration(2000)
+// 	    	.style("fill", function(d) {
+// 	    		value = d.properties.Imperv_P;
+//                 return colorImperv(value);
+// 			});
+//     });
 
 d3.select("li#Build_P.layer")
 	.on("click", function(d){ 
@@ -252,20 +293,12 @@ function drawChart(data){
 
   getArray(data);
 
-  getArrayImperv(data);
-
   //grab the values you need and bin them
   var histBinnedData = d3.layout.histogram()
   	.bins(xScale.ticks(10))
   	(array);
 
-  var histBinnedDataImperv = d3.layout.histogram()
-  	.bins(xScale.ticks(10))
-  	(arrayImperv);
-
   // window.test3 = histBinnedData;
-
-  //window.test4 = histBinnedDataImperv;
 
   var yScale = d3.scale.linear()    
   	.domain([0, d3.max(histBinnedData, function(d) { return d.y; })])
@@ -342,6 +375,96 @@ function drawChart(data){
 	    .call(yAxis);
 }
 //END CODE FOR HISTOGRAM
+
+//function that is passed the data to create the histogram
+function drawChartImperv(data){
+	//window.test2 = data;
+
+  getArrayImperv(data);
+
+  //grab the values you need and bin them
+  var histBinnedDataImperv = d3.layout.histogram()
+  	.bins(xScale.ticks(10))
+  	(arrayImperv);
+
+  //window.test4 = histBinnedDataImperv;
+
+  var yScale = d3.scale.linear()    
+  	.domain([0, d3.max(histBinnedDataImperv, function(d) { return d.y; })])
+  	.range([heightH - padding, padding])
+  	.nice();
+
+  var xAxis = d3.svg.axis()
+    .scale(xScale)
+	.orient("bottom")
+	.tickFormat(function(d) { return d + "%"; });
+
+  var yAxis = d3.svg.axis()
+  	.scale(yScale)
+  	.orient("left")
+
+	var bar = svgH.selectAll(".bar")
+	    .data(histBinnedDataImperv)
+	    .enter().append("g")
+	    .attr("class", "bar")
+	    .attr("transform", function(d) { return "translate(" + xScale(d.x) + "," + yScale(d.y) + ")"; });
+
+	bar.append("rect")
+	    .attr("x", 0)
+	    .attr("y", function (d) { (heightH - padding) - yScale(d.y);})
+	    .attr("width", xScale(histBinnedDataImperv[0].dx)/2)
+	    .attr("height", function(d) { return (heightH - padding) - yScale(d.y); })
+    	//color the bars the same way you do the polygons in the choropleth by using the color function on the value
+    	.style("fill", function(d) {
+                        //Get data value
+                        var value = d.x;
+                        //window.test=value;
+                        if (value) {
+                                //If value exists…
+                                return colorImperv(value);
+                        } else {
+                                //If value is undefined…
+                                return "#fff";
+                        }
+           })
+    	.attr('bin', function (d) {return colorImperv(d.x);})     
+    	// .on('click',function(d) {return alert(colorImperv(d.x))})
+    	.on('mouseover', function (d) {
+    		d3.selectAll("[bin='"+colorImperv(d.x)+"']")
+    		.style("fill","#F1B6DA");
+    		// console.log(d3.selectAll("[bin='"+colorImperv(d.x)+"']"))
+    	})
+    	.on('mouseout', function (d) {
+    		d3.selectAll("[bin='"+colorImperv(d.x)+"']")
+    		.style("fill",colorImperv(d.x));
+    	})
+    	// .on('click',function(d) {alert(d.bin)})
+
+	bar.append("text")
+	    .attr("dy", ".75em")
+	    .attr("y", -10)
+	    .attr("x", xScale(histBinnedDataImperv[0].dx)/5)
+	    .attr("text-anchor", "top")
+	    .text(function(d) { return formatCount(d.y); });
+
+	var xAxis2 = svgH.append("g")
+	    .attr("class", "x axis")
+	    .attr("transform", "translate(0," + (heightH - padding) + ")")
+	    .call(xAxis);
+
+	xAxis2.append("text")
+		.attr("x", widthH / 2)
+		.attr("y", 30)
+		.attr("text-anchor", "middle")
+		.text("Impervious Percentage")
+
+	var yAxis2 = svgH.append("g")
+	    .attr("class", "y axis")
+	    .attr("transform", "translate(" + padding + ",0)")
+	    .call(yAxis);
+}
+//END CODE FOR HISTOGRAM
+
 
 //listeners for layer button hovers
 $('.layer').hover(function(){
