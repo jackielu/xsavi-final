@@ -118,7 +118,7 @@ function updateDataImperv(lcData) {
 	    	.style("fill", function(d) {
 	                                //Get data value
 	                                var value = d.properties.Imperv_P;
-	                                window.test=value;
+	                                //window.test=value;
 	                                if (value) {
 	                                        //If value exists…
 	                                        return colorImperv(value);
@@ -126,16 +126,11 @@ function updateDataImperv(lcData) {
 	                                        //If value is undefined…
 	                                        return "#fff";
 	                                }
-	                   })
-	    	.attr('classImperv', function(d) {return d.properties.Imperv_P;})
-	    	.attr('binImperv', function(d) {return colorImperv(d.properties.Imperv_P);})
-	    	.on('click',function(d) {alert(d.properties.classImperv + "% impervious and" + d.properties.binImperv)});
+	                   });
 
-	    //assign a class to a D3 feature based on data attributes
-	    // feature2.attr('id',function(d) {return d.properties.UniqueID;})
-	    // 	.attr('class', function(d) {return d.properties.Imperv_P;})
-	    // 	.attr('bin', function(d) {return colorImperv(d.properties.Imperv_P);})
-	    // 	.on('click',function(d) {alert(d.properties.Imperv_P + "% impervious and" + colorImperv(d.properties.Imperv_P))});
+	   	feature2.attr('class', function(d) {return d.properties.Imperv_P;})
+	    	.attr('bin', function(d) {return colorImperv(d.properties.Imperv_P);})
+	    	.on('click',function(d) {alert(d.properties.Imperv_P + "% impervious and " + colorImperv(d.properties.Imperv_P))});
 
 		//call the function that creates the histogram and appends it to the #hist div
 		drawChartImperv(lcData);
@@ -376,43 +371,35 @@ function drawChart(data){
 }
 //END CODE FOR HISTOGRAM
 
-//function that is passed the data to create the histogram
+//V1 of the update function that is passed the data to create the histogram
 function drawChartImperv(data){
 	//window.test2 = data;
 
   getArrayImperv(data);
 
   //grab the values you need and bin them
-  var histBinnedDataImperv = d3.layout.histogram()
+  histBinnedData = d3.layout.histogram()
   	.bins(xScale.ticks(10))
   	(arrayImperv);
 
   //window.test4 = histBinnedDataImperv;
 
-  var yScale = d3.scale.linear()    
+  yScale = d3.scale.linear
   	.domain([0, d3.max(histBinnedDataImperv, function(d) { return d.y; })])
   	.range([heightH - padding, padding])
   	.nice();
 
-  var xAxis = d3.svg.axis()
-    .scale(xScale)
-	.orient("bottom")
-	.tickFormat(function(d) { return d + "%"; });
-
-  var yAxis = d3.svg.axis()
+  yAxis = d3.svg.axis()
   	.scale(yScale)
-  	.orient("left")
+  	.orient("left");
 
-	var bar = svgH.selectAll(".bar")
-	    .data(histBinnedDataImperv)
-	    .enter().append("g")
-	    .attr("class", "bar")
-	    .attr("transform", function(d) { return "translate(" + xScale(d.x) + "," + yScale(d.y) + ")"; });
+	svgH.selectAll(".bar").transition()
+		.attr("transform", function(d) { return "translate(" + xScale(d.x) + "," + yScale(d.y) + ")"; });
 
-	bar.append("rect")
-	    .attr("x", 0)
+	bar.selectAll("rect")
+		.duration(2000)
 	    .attr("y", function (d) { (heightH - padding) - yScale(d.y);})
-	    .attr("width", xScale(histBinnedDataImperv[0].dx)/2)
+	    .attr("width", xScale(histBinnedData[0].dx)/2)
 	    .attr("height", function(d) { return (heightH - padding) - yScale(d.y); })
     	//color the bars the same way you do the polygons in the choropleth by using the color function on the value
     	.style("fill", function(d) {
@@ -440,30 +427,17 @@ function drawChartImperv(data){
     	})
     	// .on('click',function(d) {alert(d.bin)})
 
-	bar.append("text")
-	    .attr("dy", ".75em")
-	    .attr("y", -10)
-	    .attr("x", xScale(histBinnedDataImperv[0].dx)/5)
-	    .attr("text-anchor", "top")
+	bar.selectAll("text")
+	    .attr("x", xScale(histBinnedData[0].dx)/5)
 	    .text(function(d) { return formatCount(d.y); });
 
-	var xAxis2 = svgH.append("g")
-	    .attr("class", "x axis")
-	    .attr("transform", "translate(0," + (heightH - padding) + ")")
-	    .call(xAxis);
-
-	xAxis2.append("text")
-		.attr("x", widthH / 2)
-		.attr("y", 30)
-		.attr("text-anchor", "middle")
+	xAxis2.select("text")
 		.text("Impervious Percentage")
 
-	var yAxis2 = svgH.append("g")
-	    .attr("class", "y axis")
-	    .attr("transform", "translate(" + padding + ",0)")
-	    .call(yAxis);
+	yAxis2.select(".y axis")
+		.call(yAxis);
 }
-//END CODE FOR HISTOGRAM
+//END CODE FOR V1 UPDATE HISTOGRAM
 
 
 //listeners for layer button hovers
