@@ -371,7 +371,7 @@ function drawChart(data){
 }
 //END CODE FOR HISTOGRAM
 
-//V1 of the update function that is passed the data to create the histogram
+//V1 of the update function that is passed the data to create the histogram for impervious cover
 function drawChartImperv(data){
 	//window.test2 = data;
 
