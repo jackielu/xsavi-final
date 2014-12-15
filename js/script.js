@@ -112,12 +112,14 @@ d3.json("data/landcoversumm.geojson", function(lcData) {
 // ** Update data section (Called from the onclick)
 function updateDataImperv(lcData) {
 
+		//call the function that creates the histogram and appends it to the #hist div
+
 		var feature = d3.selectAll("path")
 	    	.transition()
 	        .duration(2000)
-	    	.style("fill", function(d) {
+	    	.style("fill", function(lcData) {
 	                                //Get data value
-	                                var value = d.properties.Imperv_P;
+	                                var value = lcData.properties.Imperv_P;
 	                                //window.test=value;
 	                                if (value) {
 	                                        //If value exists…
@@ -126,21 +128,18 @@ function updateDataImperv(lcData) {
 	                                        //If value is undefined…
 	                                        return "#fff";
 	                                }
-	                   });
-
-	   	feature
-	   		.attr('class', function(d) {return d.properties.Imperv_P;})
-	    	.attr('bin', function(d) {return colorImperv(d.properties.Imperv_P);})
-	    	.on('click',function(d) {alert(d.properties.Imperv_P + "% impervious and " + colorImperv(d.properties.Imperv_P))});
-
-		//call the function that creates the histogram and appends it to the #hist div
+	                   })
+	    	.attr('class', function(lcData) {return lcData.properties.Imperv_P;})
+	    	.attr('bin', function(lcData) {return colorImperv(lcData.properties.Imperv_P);})
+	    	.on('click',function(lcData) {alert(lcData.properties.Imperv_P + "% impervious and " + colorImperv(lcData.properties.Imperv_P))});
+	   		
 		drawChartImperv(lcData);
 };
 
 
 d3.select("li#Imperv_P.layer")
 	.on("click", function (d){ 
-		console.log(this);
+		//console.log(this);
     	updateDataImperv(d);
     });
 
@@ -165,7 +164,7 @@ d3.select("li#Build_P.layer")
 	        .duration(2000)
 	    	.style("fill", function(d) {
 	    		value = d.properties.Build_P;
-                return colorBuild(value);
+                return colorBuild(value)
 			});
     });
 
@@ -297,41 +296,17 @@ var yAxis2 = svgH.append("g")
 	.call(yAxis);
 
 
-// var array = [];
-// //function to create arrays from "columns" of attribute data to bin in the histogram
-// function getArray(data) {
-// 	for (var i=0; i< data.features.length; i++) {
-// 	array.push(data.features[i].properties.Can_P);
-// 	array;
-// 	}
-// }
-
-var arrayImperv = [];
-function getArrayImperv(data) {
-	for (var i=0; i< data.features.length; i++) {
-	arrayImperv.push(data.features[i].properties.Imperv_P);
-	arrayImperv;
-	}
-}
-
-
 
 //new function that is passed the data to create the histogram
 function drawChart(data){
 
   //window.test2 = data;
 
-  //pull out all the values for a particular property
-  var datavars = data.features.map(function (el) {
-  	return el.properties.Can_P
-  });
-
-  console.log(datavars);
-
   //grab the values you need and bin them
   var histBinnedData = d3.layout.histogram()
   	.bins(xScale.ticks(10))
-  	(datavars);
+  	(data.features.map(function (d) {
+  			return d.properties.Can_P}));
 
   //window.test3 = histBinnedData;
 
@@ -389,25 +364,16 @@ function drawChart(data){
 
 
 
-
-
-
-
-
-
-
 //V1 of the update function that is passed the data to create the histogram for impervious cover
 function drawChartImperv(data){
 
-
-  getArrayImperv(data);
-
   //grab the values you need and bin them
-  histBinnedDataImperv = d3.layout.histogram()
+  var histBinnedDataImperv = d3.layout.histogram()
   	.bins(xScale.ticks(10))
-  	(arrayImperv);
+  	(data.features.map(function (d) {
+  			return d.properties.Imperv_P}));
 
-  //window.test4 = histBinnedDataImperv;
+  window.test4 = histBinnedDataImperv;
 
   yScale.domain([0, d3.max(histBinnedDataImperv, function(d) { return d.y; })])
   	.nice();
