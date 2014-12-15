@@ -40,9 +40,11 @@ var colorImperv = d3.scale.quantize()
 
 //code to add D3 polygon data to the map is based on http://bost.ocks.org/mike/leaflet/
 
+
+
 //d3.json call starts here
 d3.json("data/landcoversumm.geojson", function(lcData) {
-	//window.test = lcData;
+	window.test = lcData;
 	//console.log(lcData);
 
 	// create a d3.geo.path to convert GeoJSON to SVG:
@@ -69,7 +71,7 @@ d3.json("data/landcoversumm.geojson", function(lcData) {
                    });
 
     //assign a class to a D3 feature based on data attributes
-    feature.attr('id',function(d) {return d.properties.UniqueID;})
+	feature.attr('id',function(d) {return d.properties.UniqueID;})
     	.attr('class', function(d) {return d.properties.Can_P;})
     	.attr('bin', function(d) {return colorCan(d.properties.Can_P);})
     	.on('click',function(d) {alert(d.properties.Can_P + "% canopy and" + colorCan(d.properties.Can_P))});
@@ -109,10 +111,8 @@ d3.json("data/landcoversumm.geojson", function(lcData) {
 
 // ** Update data section (Called from the onclick)
 function updateDataImperv(lcData) {
-    // Get the data again
-	d3.json("data/landcoversumm.geojson", function(lcData) {
-	    // create path elements for each of the features using D3’s data join:
-	    var feature2 = gMap.selectAll("path")
+
+		var feature = d3.selectAll("path")
 	    	.transition()
 	        .duration(2000)
 	    	.style("fill", function(d) {
@@ -128,14 +128,14 @@ function updateDataImperv(lcData) {
 	                                }
 	                   });
 
-	   	feature2.attr('class', function(d) {return d.properties.Imperv_P;})
+	   	feature
+	   		.attr('class', function(d) {return d.properties.Imperv_P;})
 	    	.attr('bin', function(d) {return colorImperv(d.properties.Imperv_P);})
 	    	.on('click',function(d) {alert(d.properties.Imperv_P + "% impervious and " + colorImperv(d.properties.Imperv_P))});
 
 		//call the function that creates the histogram and appends it to the #hist div
 		drawChartImperv(lcData);
-	});
-}
+};
 
 
 d3.select("li#Imperv_P.layer")
@@ -146,7 +146,7 @@ d3.select("li#Imperv_P.layer")
 
 //this adds HARD CODED interactivity - click on #imp_p.layer button and the polygon update.  These only update the *styling* and not the bin and class values for the path that allows hovering over the histogram bars to highlight the corresponding paths on the map
 // d3.select("li#Imperv_P.layer")
-// 	.on("click", function(d){ 
+// 	.on("click", function (d){ 
 // 		console.log(this);
 //     	d3.selectAll("path")
 // 	        .transition()
@@ -159,7 +159,7 @@ d3.select("li#Imperv_P.layer")
 
 d3.select("li#Build_P.layer")
 	.on("click", function(d){ 
-		console.log(this);
+		//console.log(this);
     	d3.selectAll("path")
 	        .transition()
 	        .duration(2000)
@@ -297,14 +297,14 @@ var yAxis2 = svgH.append("g")
 	.call(yAxis);
 
 
-var array = [];
-//function to create arrays from "columns" of attribute data to bin in the histogram
-function getArray(data) {
-	for (var i=0; i< data.features.length; i++) {
-	array.push(data.features[i].properties.Can_P);
-	array;
-	}
-}
+// var array = [];
+// //function to create arrays from "columns" of attribute data to bin in the histogram
+// function getArray(data) {
+// 	for (var i=0; i< data.features.length; i++) {
+// 	array.push(data.features[i].properties.Can_P);
+// 	array;
+// 	}
+// }
 
 var arrayImperv = [];
 function getArrayImperv(data) {
@@ -315,23 +315,29 @@ function getArrayImperv(data) {
 }
 
 
-//function that is passed the data to create the histogram
-function drawChart(data){
-	//window.test2 = data;
 
-  getArray(data);
+//new function that is passed the data to create the histogram
+function drawChart(data){
+
+  //window.test2 = data;
+
+  //pull out all the values for a particular property
+  var datavars = data.features.map(function (el) {
+  	return el.properties.Can_P
+  });
+
+  console.log(datavars);
 
   //grab the values you need and bin them
   var histBinnedData = d3.layout.histogram()
   	.bins(xScale.ticks(10))
-  	(array);
+  	(datavars);
 
-  window.test3 = histBinnedData;
+  //window.test3 = histBinnedData;
+
   yScale.domain([0, d3.max(histBinnedData, function(d) { return d.y; })])
   	.nice();
-
   yAxis.scale(yScale);
-
   yAxis2.call(yAxis);
 
   var bar = svgH.selectAll(".bar")
@@ -380,9 +386,19 @@ function drawChart(data){
 }
 //END CODE FOR HISTOGRAM
 
+
+
+
+
+
+
+
+
+
+
 //V1 of the update function that is passed the data to create the histogram for impervious cover
 function drawChartImperv(data){
-	//window.test2 = data;
+
 
   getArrayImperv(data);
 
@@ -394,13 +410,15 @@ function drawChartImperv(data){
   //window.test4 = histBinnedDataImperv;
 
   yScale.domain([0, d3.max(histBinnedDataImperv, function(d) { return d.y; })])
-  	// .range([heightH - padding, padding])
-  	// .nice();
+  	.nice();
+  yAxis.scale(yScale);
+  yAxis2.call(yAxis);
 
 	svgH.selectAll(".bar").transition()
 		.attr("transform", function(d) { return "translate(" + xScale(d.x) + "," + yScale(d.y) + ")"; });
 
 	bar.selectAll("rect")
+		.transition()
 		.duration(2000)
 	    .attr("y", function (d) { (heightH - padding) - yScale(d.y);})
 	    .attr("width", xScale(histBinnedDataImperv[0].dx)/2)
@@ -435,11 +453,9 @@ function drawChartImperv(data){
 	    .attr("x", xScale(histBinnedDataImperv[0].dx)/5)
 	    .text(function(d) { return formatCount(d.y); });
 
-	xAxis2.select("text")
+	xAxis2.selectAll("text")
 		.text("Impervious Percentage")
 
-	yAxis2.select(".y.axis")
-		.call(yAxis);
 }
 //END CODE FOR V1 UPDATE HISTOGRAM
 
