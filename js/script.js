@@ -285,9 +285,7 @@ xAxis2.append("text")
 
 
 var yScale = d3.scale.linear()    
-	// .domain([0, 100])
-	.range([heightH - padding, padding])
-	.nice();
+	.range([heightH - padding, padding]);
 
 var yAxis = d3.svg.axis()
 	.scale(yScale)
@@ -328,12 +326,13 @@ function drawChart(data){
   	.bins(xScale.ticks(10))
   	(array);
 
-  //window.test3 = histBinnedData;
-  yScale = d3.scale.linear()
-  	.domain([0, d3.max(histBinnedData, function(d) { return d.y; })])
-	.range([heightH - padding, padding])
-	.nice();
+  window.test3 = histBinnedData;
+  yScale.domain([0, d3.max(histBinnedData, function(d) { return d.y; })])
+  	.nice();
 
+  yAxis.scale(yScale);
+
+  yAxis2.call(yAxis);
 
   var bar = svgH.selectAll(".bar")
 	    .data(histBinnedData)
@@ -439,7 +438,7 @@ function drawChartImperv(data){
 	xAxis2.select("text")
 		.text("Impervious Percentage")
 
-	yAxis2.select(".y axis")
+	yAxis2.select(".y.axis")
 		.call(yAxis);
 }
 //END CODE FOR V1 UPDATE HISTOGRAM
