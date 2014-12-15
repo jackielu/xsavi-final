@@ -144,7 +144,7 @@ d3.select("li#Imperv_P.layer")
     	updateDataImperv(d);
     });
 
-//this adds HARD CODED interactivity - click on #imp_p.layer button and the polygon update
+//this adds HARD CODED interactivity - click on #imp_p.layer button and the polygon update.  These only update the *styling* and not the bin and class values for the path that allows hovering over the histogram bars to highlight the corresponding paths on the map
 // d3.select("li#Imperv_P.layer")
 // 	.on("click", function(d){ 
 // 		console.log(this);
@@ -252,6 +252,13 @@ var svgH = hist.append("svg")
     .attr("transform", "translate(" + marginH.left + "," + marginH.top + ")");
 
 
+//a function for formatting numbers
+var makeRoundP = d3.format(".3p") 
+
+//a formatter for counts
+var formatCount = d3.format(",.0f");
+
+
 //padding value to push the elements in away from the edges of the SVG
 var padding = 40
 
@@ -259,6 +266,38 @@ var padding = 40
 var xScale = d3.scale.linear()
 	.domain([0,100])
 	.range([padding, widthH - padding]);
+
+var xAxis = d3.svg.axis()
+	.scale(xScale)
+	.orient("bottom")
+	.tickFormat(function(d) { return d + "%"; });
+
+var xAxis2 = svgH.append("g")
+    .attr("class", "x axis")
+    .attr("transform", "translate(0," + (heightH - padding) + ")")
+    .call(xAxis);
+
+xAxis2.append("text")
+	.attr("x", widthH / 2)
+	.attr("y", 30)
+	.attr("text-anchor", "middle")
+	.text("Canopy Percentage")
+
+
+var yScale = d3.scale.linear()    
+	// .domain([0, 100])
+	.range([heightH - padding, padding])
+	.nice();
+
+var yAxis = d3.svg.axis()
+	.scale(yScale)
+	.orient("left")
+
+var yAxis2 = svgH.append("g")
+	.attr("class", "y axis")
+	.attr("transform", "translate(" + padding + ",0)")
+	.call(yAxis);
+
 
 var array = [];
 //function to create arrays from "columns" of attribute data to bin in the histogram
@@ -281,10 +320,6 @@ function getArrayImperv(data) {
 //function that is passed the data to create the histogram
 function drawChart(data){
 	//window.test2 = data;
-  var makeRoundP = d3.format(".3p") //a function for formatting numbers
-
-  //a formatter for counts
-  var formatCount = d3.format(",.0f");
 
   getArray(data);
 
@@ -293,23 +328,14 @@ function drawChart(data){
   	.bins(xScale.ticks(10))
   	(array);
 
-  // window.test3 = histBinnedData;
-
-  var yScale = d3.scale.linear()    
+  //window.test3 = histBinnedData;
+  yScale = d3.scale.linear()
   	.domain([0, d3.max(histBinnedData, function(d) { return d.y; })])
-  	.range([heightH - padding, padding])
-  	.nice();
+	.range([heightH - padding, padding])
+	.nice();
 
-  var xAxis = d3.svg.axis()
-    .scale(xScale)
-	.orient("bottom")
-	.tickFormat(function(d) { return d + "%"; });
 
-  var yAxis = d3.svg.axis()
-  	.scale(yScale)
-  	.orient("left")
-
-	var bar = svgH.selectAll(".bar")
+  var bar = svgH.selectAll(".bar")
 	    .data(histBinnedData)
 	    .enter().append("g")
 	    .attr("class", "bar")
@@ -352,22 +378,6 @@ function drawChart(data){
 	    .attr("x", xScale(histBinnedData[0].dx)/5)
 	    .attr("text-anchor", "top")
 	    .text(function(d) { return formatCount(d.y); });
-
-	var xAxis2 = svgH.append("g")
-	    .attr("class", "x axis")
-	    .attr("transform", "translate(0," + (heightH - padding) + ")")
-	    .call(xAxis);
-
-	xAxis2.append("text")
-		.attr("x", widthH / 2)
-		.attr("y", 30)
-		.attr("text-anchor", "middle")
-		.text("Canopy Percentage")
-
-	var yAxis2 = svgH.append("g")
-	    .attr("class", "y axis")
-	    .attr("transform", "translate(" + padding + ",0)")
-	    .call(yAxis);
 }
 //END CODE FOR HISTOGRAM
 
@@ -378,20 +388,15 @@ function drawChartImperv(data){
   getArrayImperv(data);
 
   //grab the values you need and bin them
-  histBinnedData = d3.layout.histogram()
+  histBinnedDataImperv = d3.layout.histogram()
   	.bins(xScale.ticks(10))
   	(arrayImperv);
 
   //window.test4 = histBinnedDataImperv;
 
-  yScale = d3.scale.linear
-  	.domain([0, d3.max(histBinnedDataImperv, function(d) { return d.y; })])
-  	.range([heightH - padding, padding])
-  	.nice();
-
-  yAxis = d3.svg.axis()
-  	.scale(yScale)
-  	.orient("left");
+  yScale.domain([0, d3.max(histBinnedDataImperv, function(d) { return d.y; })])
+  	// .range([heightH - padding, padding])
+  	// .nice();
 
 	svgH.selectAll(".bar").transition()
 		.attr("transform", function(d) { return "translate(" + xScale(d.x) + "," + yScale(d.y) + ")"; });
@@ -399,7 +404,7 @@ function drawChartImperv(data){
 	bar.selectAll("rect")
 		.duration(2000)
 	    .attr("y", function (d) { (heightH - padding) - yScale(d.y);})
-	    .attr("width", xScale(histBinnedData[0].dx)/2)
+	    .attr("width", xScale(histBinnedDataImperv[0].dx)/2)
 	    .attr("height", function(d) { return (heightH - padding) - yScale(d.y); })
     	//color the bars the same way you do the polygons in the choropleth by using the color function on the value
     	.style("fill", function(d) {
@@ -428,7 +433,7 @@ function drawChartImperv(data){
     	// .on('click',function(d) {alert(d.bin)})
 
 	bar.selectAll("text")
-	    .attr("x", xScale(histBinnedData[0].dx)/5)
+	    .attr("x", xScale(histBinnedDataImperv[0].dx)/5)
 	    .text(function(d) { return formatCount(d.y); });
 
 	xAxis2.select("text")
