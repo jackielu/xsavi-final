@@ -28,14 +28,39 @@ var colorCan = d3.scale.quantize()
                     .range(["#adac8f", "#98a381", "#849974", "#718e67", "#5f845b", "#4e794f", "#3e6e44", "#2g633a", "#205831", "#124d28"])
                     .domain([0, 100]);
 
+//color scale for Grass_P value
+var colorGrass = d3.scale.quantize()
+                    .range(["#e5e09b", "#cfcb8b", "#b9b67b", "#a4a16c", "#8f8d5d", "#7b794f", "#676641", "#545434", "#424227", "#31311c"])
+                    .domain([0, 100]);
+
+//color scale for Soil_P value
+var colorSoil = d3.scale.quantize()
+                    .range(["#6f5544", "#6a503f", "#654b3b", "#604637", "#5b4133", "#553d2f", "#50382b", "#4b3427", "#462f23", "#412b1f"])
+                    .domain([0, 100]);
+
+//color scale for Water_P value
+var colorWater = d3.scale.quantize()
+                    .range(["#e9f9ff", "#cde5f5", "#b1d3e9", "#97c0dc", "#7dadce", "#659bbf", "#4d89ae", "#36779d", "#1f668b", "#025577"])
+                    .domain([0, 100]);
+
 //color scale for Build_P value
 var colorBuild = d3.scale.quantize()
 					.range(["#c4a58e","#c3947d","#c0836e","#bb735f","#b46452","#ab5545","#a1463a","#96392f","#892b25","#7c1f1d"])
 					.domain([0, 100]);
 
+//color scale for Road_P value
+var colorRoad = d3.scale.quantize()
+					.range(["#f6b296","#f19d81","#e9886e","#de745d","#d2604d","#c34e3e","#b33c31","#a22b25","#8f1b1b","#7b0a11"])
+					.domain([0, 100]);
+
 //color scale for Imperv_P value
 var colorImperv = d3.scale.quantize()
 					.range(["#b0aa9e","#9d9f9c","#8b9498","#798993","#677d8d", "#567287","#46687f","#365d77","#26526d","#144763"])
+					.domain([0, 100]);
+
+//color scale for Imperv_P value
+var colorPaved = d3.scale.quantize()
+					.range(["#d9c4c3","#c3adca","#ac97cc","#9483ca","#7c6fc3", "#635db7","#4b4ba8","#333b95","#1c2c7e","#031e65"])
 					.domain([0, 100]);
 
 
@@ -219,14 +244,7 @@ function drawChartCan(data){
       .style("fill", function(d) {
                         //Get data value
                         var value = d.x;
-                        //window.test=value;
-                        if (value) {
-                                //If value exists…
-                                return colorCan(value);
-                        } else {
-                                //If value is undefined…
-                                return "#fff";
-                        }
+                        return colorCan(value);
            })
       .attr('bin', function (d) {return colorCan(d.x);})
 		.on('mouseover', function (d) {
@@ -249,6 +267,193 @@ function drawChartCan(data){
     .remove();
 }
 
+//FUNCTION TO DRAW THE CHART for Grass_P value
+function drawChartGrass(data){
+
+  //grab the values you need and bin them
+  histogramData = d3.layout.histogram()
+    .bins(xScale.ticks(10))
+    (data.features.map(function (d) {
+        return d.properties.Grass_P}));
+
+  window.histogramData = histogramData;
+
+  yScale.domain([0, d3.max(histogramData, function(d) { return d.y; })])
+    .nice();
+  yAxis.scale(yScale);
+  yAxis2.call(yAxis);
+
+
+  xAxis2.select(".xLabel")
+    .text("Grass Cover Percentage")
+
+  //bind the data once
+  bar = svg.selectAll(".bar")
+      .data(histogramData)
+
+  //handle new elements
+  bar.enter()
+      .append("g")
+      .attr("class", "bar")
+      .attr("transform", function(d) { return "translate(" + xScale(d.x) + "," + yScale(d.y) + ")"; });
+
+  bar.append("rect")
+      .attr("x", 0)
+      .attr("y", function (d) { (height - padding) - yScale(d.y);})
+      .attr("width", xScale(histogramData[0].dx)/2)
+      .attr("height", function (d) { return (height - padding) - yScale(d.y); })
+      //color the bars using the color function for the layer
+      .style("fill", function(d) {
+                        //Get data value
+                        var value = d.x;
+                        //window.test=value;
+                        return colorGrass(value);
+           })
+      .attr('bin', function (d) {return colorGrass(d.x);})
+		.on('mouseover', function (d) {
+			d3.selectAll("[bin='"+colorGrass(d.x)+"']")
+			.style("fill","#F1B6DA");
+			// console.log(d3.selectAll("[bin='"+colorCan(d.x)+"']"))
+		})
+     	.on('mouseout', function (d) {
+     		d3.selectAll("[bin='"+colorGrass(d.x)+"']")
+     		.style("fill",colorGrass(d.x));
+     	})     
+
+    // handle updated elements
+  bar.transition()
+    .duration(3000)
+    .attr("transform", function(d) { return "translate(" + xScale(d.x) + "," + yScale(d.y) + ")"; })
+
+    // handle removed elements
+  bar.exit()
+    .remove();
+}
+
+
+//FUNCTION TO DRAW THE CHART for Grass_P value
+function drawChartSoil(data){
+
+  //grab the values you need and bin them
+  histogramData = d3.layout.histogram()
+    .bins(xScale.ticks(10))
+    (data.features.map(function (d) {
+        return d.properties.Soil_P}));
+
+  window.histogramData = histogramData;
+
+  yScale.domain([0, d3.max(histogramData, function(d) { return d.y; })])
+    .nice();
+  yAxis.scale(yScale);
+  yAxis2.call(yAxis);
+
+
+  xAxis2.select(".xLabel")
+    .text("Soil Cover Percentage")
+
+  //bind the data once
+  bar = svg.selectAll(".bar")
+      .data(histogramData)
+
+  //handle new elements
+  bar.enter()
+      .append("g")
+      .attr("class", "bar")
+      .attr("transform", function(d) { return "translate(" + xScale(d.x) + "," + yScale(d.y) + ")"; });
+
+  bar.append("rect")
+      .attr("x", 0)
+      .attr("y", function (d) { (height - padding) - yScale(d.y);})
+      .attr("width", xScale(histogramData[0].dx)/2)
+      .attr("height", function (d) { return (height - padding) - yScale(d.y); })
+      //color the bars using the color function for the layer
+      .style("fill", function(d) {
+                        //Get data value
+                        var value = d.x;
+                        //window.test=value;
+                        return colorSoil(value);
+           })
+      .attr('bin', function (d) {return colorSoil(d.x);})
+		.on('mouseover', function (d) {
+			d3.selectAll("[bin='"+colorSoil(d.x)+"']")
+			.style("fill","#F1B6DA");
+		})
+     	.on('mouseout', function (d) {
+     		d3.selectAll("[bin='"+colorSoil(d.x)+"']")
+     		.style("fill",colorSoil(d.x));
+     	})     
+
+    // handle updated elements
+  bar.transition()
+    .duration(3000)
+    .attr("transform", function(d) { return "translate(" + xScale(d.x) + "," + yScale(d.y) + ")"; })
+
+    // handle removed elements
+  bar.exit()
+    .remove();
+}
+
+//FUNCTION TO DRAW THE CHART for Water_P value
+function drawChartWater(data){
+
+  //grab the values you need and bin them
+  histogramData = d3.layout.histogram()
+    .bins(xScale.ticks(10))
+    (data.features.map(function (d) {
+        return d.properties.Water_P}));
+
+  window.histogramData = histogramData;
+
+  yScale.domain([0, d3.max(histogramData, function(d) { return d.y; })])
+    .nice();
+  yAxis.scale(yScale);
+  yAxis2.call(yAxis);
+
+
+  xAxis2.select(".xLabel")
+    .text("Water Percentage")
+
+  //bind the data once
+  bar = svg.selectAll(".bar")
+      .data(histogramData)
+
+  //handle new elements
+  bar.enter()
+      .append("g")
+      .attr("class", "bar")
+      .attr("transform", function(d) { return "translate(" + xScale(d.x) + "," + yScale(d.y) + ")"; });
+
+  bar.append("rect")
+      .attr("x", 0)
+      .attr("y", function (d) { (height - padding) - yScale(d.y);})
+      .attr("width", xScale(histogramData[0].dx)/2)
+      .attr("height", function (d) { return (height - padding) - yScale(d.y); })
+      //color the bars using the color function for the layer
+      .style("fill", function(d) {
+                        //Get data value
+                        var value = d.x;
+                        //window.test=value;
+                        return colorWater(value);
+           })
+      .attr('bin', function (d) {return colorWater(d.x);})
+		.on('mouseover', function (d) {
+			d3.selectAll("[bin='"+colorWater(d.x)+"']")
+			.style("fill","#F1B6DA");
+		})
+     	.on('mouseout', function (d) {
+     		d3.selectAll("[bin='"+colorWater(d.x)+"']")
+     		.style("fill",colorWater(d.x));
+     	})     
+
+    // handle updated elements
+  bar.transition()
+    .duration(3000)
+    .attr("transform", function(d) { return "translate(" + xScale(d.x) + "," + yScale(d.y) + ")"; })
+
+    // handle removed elements
+  bar.exit()
+    .remove();
+}
 
 //FUNCTION TO UPDATE THE CHART ON CLICK for Imperv_P value
 function drawChartImperv(data) {
@@ -290,13 +495,7 @@ function drawChartImperv(data) {
                         //Get data value
                         var value = d.x;
                         //window.test=value;
-                        if (value) {
-                                //If value exists…
-                                return colorImperv(value);
-                        } else {
-                                //If value is undefined…
-                                return "#fff";
-                        }
+						return colorImperv(value);
            })
       .attr('bin', function (d) {return colorImperv(d.x);})     
     	.on('mouseover', function (d) {
@@ -318,7 +517,131 @@ function drawChartImperv(data) {
   bar.exit()
     .remove();
 }
-//END CODE FOR UPDATE HISTOGRAM FUNCTION
+
+//FUNCTION TO UPDATE THE CHART ON CLICK for Road_P value
+function drawChartRoad(data) {
+
+  //grab the values you need and bin them
+  histogramData = d3.layout.histogram()
+    .bins(xScale.ticks(10))
+    (data.features.map(function (d) {
+        return d.properties.Road_P}));
+
+  window.histogramData = histogramData;
+
+  yScale.domain([0, d3.max(histogramData, function(d) { return d.y; })])
+    .nice();
+  yAxis.scale(yScale);
+  yAxis2.call(yAxis);
+
+  xAxis2.select(".xLabel")
+    .text("Road Cover Percentage")
+
+  //bind the data once
+  bar = svg.selectAll(".bar")
+      .data(histogramData)
+
+  //handle new elements
+  bar.enter()
+      .append("g")
+      .attr("class", "bar")
+      .attr("transform", function(d) { return "translate(" + xScale(d.x) + "," + yScale(d.y) + ")"; });
+
+  bar
+    .append("rect")
+      .attr("x", 0)
+      .attr("y", function (d) { (height - padding) - yScale(d.y);})
+      .attr("width", xScale(histogramData[0].dx)/2)
+      .attr("height", function (d) { return (height - padding) - yScale(d.y); })
+      //color the bars using the color function for the layer
+      .style("fill", function(d) {
+                        //Get data value
+                        var value = d.x;
+                        //window.test=value;
+						return colorRoad(value);
+           })
+      .attr('bin', function (d) {return colorRoad(d.x);})     
+    	.on('mouseover', function (d) {
+			d3.selectAll("[bin='"+colorRoad(d.x)+"']")
+			.style("fill","#F1B6DA");
+			// console.log(d3.selectAll("[bin='"+colorCan(d.x)+"']"))
+		})
+     	.on('mouseout', function (d) {
+     		d3.selectAll("[bin='"+colorRoad(d.x)+"']")
+     		.style("fill",colorRoad(d.x));
+     	}) 
+
+    // handle updated elements
+  bar.transition()
+    .duration(3000)
+    .attr("transform", function(d) { return "translate(" + xScale(d.x) + "," + yScale(d.y) + ")"; });
+
+    // handle removed elements
+  bar.exit()
+    .remove();
+}
+
+//FUNCTION TO UPDATE THE CHART ON CLICK for Build_P value
+function drawChartPaved(data) {
+
+  //grab the values you need and bin them
+  histogramData = d3.layout.histogram()
+    .bins(xScale.ticks(10))
+    (data.features.map(function (d) {
+        return d.properties.Paved_P}));
+
+  window.histogramData = histogramData;
+
+  yScale.domain([0, d3.max(histogramData, function(d) { return d.y; })])
+    .nice();
+  yAxis.scale(yScale);
+  yAxis2.call(yAxis);
+
+  xAxis2.select(".xLabel")
+    .text("Misc. Paved Percentage Cover")
+
+  //bind the data once
+  bar = svg.selectAll(".bar")
+      .data(histogramData)
+
+  //handle new elements
+  bar.enter()
+      .append("g")
+      .attr("class", "bar")
+      .attr("transform", function(d) { return "translate(" + xScale(d.x) + "," + yScale(d.y) + ")"; });
+
+  bar
+    .append("rect")
+      .attr("x", 0)
+      .attr("y", function (d) { (height - padding) - yScale(d.y);})
+      .attr("width", xScale(histogramData[0].dx)/2)
+      .attr("height", function (d) { return (height - padding) - yScale(d.y); })
+      //color the bars using the color function for the layer
+      .style("fill", function(d) {
+                        //Get data value
+                        var value = d.x;
+                        //window.test=value;
+                        return colorPaved(value);
+           })
+      .attr('bin', function (d) {return colorPaved(d.x);})     
+    	.on('mouseover', function (d) {
+			d3.selectAll("[bin='"+colorPaved(d.x)+"']")
+			.style("fill","#F1B6DA");
+		})
+     	.on('mouseout', function (d) {
+     		d3.selectAll("[bin='"+colorPaved(d.x)+"']")
+     		.style("fill",colorPaved(d.x));
+     	}) 
+
+    // handle updated elements
+  bar.transition()
+    .duration(3000)
+    .attr("transform", function(d) { return "translate(" + xScale(d.x) + "," + yScale(d.y) + ")"; });
+
+    // handle removed elements
+  bar.exit()
+    .remove();
+}
 
 //FUNCTION TO UPDATE THE CHART ON CLICK for Build_P value
 function drawChartBuild(data) {
@@ -360,13 +683,7 @@ function drawChartBuild(data) {
                         //Get data value
                         var value = d.x;
                         //window.test=value;
-                        if (value) {
-                                //If value exists…
-                                return colorBuild(value);
-                        } else {
-                                //If value is undefined…
-                                return "#fff";
-                        }
+                        return colorBuild(value);
            })
       .attr('bin', function (d) {return colorBuild(d.x);})     
     	.on('mouseover', function (d) {
@@ -393,6 +710,57 @@ function drawChartBuild(data) {
 
 
 // ** Update Map data section (Called from the onclick)
+function updateDataGrass(lcData) {
+
+		feature = gMap.selectAll("path")
+	    	.transition()
+	        .duration(2000)
+	    	.style("fill", function(lcData) {
+	                                //Get data value
+	                                var value = lcData.properties.Grass_P;
+	                                //window.test=value;
+	                                return colorGrass(value);
+	                   });
+
+	    feature.attr('class', function(lcData) {return lcData.properties.Grass_P;})
+	    	.attr('bin', function(lcData) {return colorGrass(lcData.properties.Grass_P);});
+	   		
+};
+
+function updateDataSoil(lcData) {
+
+		feature = gMap.selectAll("path")
+	    	.transition()
+	        .duration(2000)
+	    	.style("fill", function(lcData) {
+	                                //Get data value
+	                                var value = lcData.properties.Soil_P;
+	                                //window.test=value;
+	                                return colorSoil(value);
+	                   });
+
+	    feature.attr('class', function(lcData) {return lcData.properties.Soil_P;})
+	    	.attr('bin', function(lcData) {return colorSoil(lcData.properties.Soil_P);});
+	   		
+};
+
+function updateDataWater(lcData) {
+
+		feature = gMap.selectAll("path")
+	    	.transition()
+	        .duration(2000)
+	    	.style("fill", function(lcData) {
+	                                //Get data value
+	                                var value = lcData.properties.Water_P;
+	                                //window.test=value;
+	                                return colorWater(value);
+	                   });
+
+	    feature.attr('class', function(lcData) {return lcData.properties.Water_P;})
+	    	.attr('bin', function(lcData) {return colorWater(lcData.properties.Water_P);});
+	   		
+};
+
 function updateDataImperv(lcData) {
 
 		feature = gMap.selectAll("path")
@@ -402,20 +770,29 @@ function updateDataImperv(lcData) {
 	                                //Get data value
 	                                var value = lcData.properties.Imperv_P;
 	                                //window.test=value;
-	                                if (value) {
-	                                        //If value exists…
-	                                        return colorImperv(value);
-	                                } else {
-	                                        //If value is undefined…
-	                                        return "#fff";
-	                                }
+	                                return colorImperv(value);
 	                   });
 
 	    feature.attr('class', function(lcData) {return lcData.properties.Imperv_P;})
 	    	.attr('bin', function(lcData) {return colorImperv(lcData.properties.Imperv_P);})
-	    	.on('click',function(lcData) {alert(lcData.properties.Imperv_P + "% impervious and " + colorImperv(lcData.properties.Imperv_P))});
-	   		
 };
+
+function updateDataRoad(lcData) {
+
+		feature = gMap.selectAll("path")
+	    	.transition()
+	        .duration(2000)
+	    	.style("fill", function(lcData) {
+	                                //Get data value
+	                                var value = lcData.properties.Road_P;
+	                                //window.test=value;
+	                                return colorRoad(value);
+	                   });
+
+	    feature.attr('class', function(lcData) {return lcData.properties.Road_P;})
+	    	.attr('bin', function(lcData) {return colorRoad(lcData.properties.Road_P);})
+};
+
 
 function updateDataBuild(lcData) {
 
@@ -426,17 +803,28 @@ function updateDataBuild(lcData) {
 	                                //Get data value
 	                                var value = lcData.properties.Build_P;
 	                                //window.test=value;
-	                                if (value) {
-	                                        //If value exists…
-	                                        return colorBuild(value);
-	                                } else {
-	                                        //If value is undefined…
-	                                        return "#fff";
-	                                }
+	                                return colorBuild(value);
 	                   });
 
 	    feature.attr('class', function(lcData) {return lcData.properties.Build_P;})
 	    	.attr('bin', function(lcData) {return colorBuild(lcData.properties.Build_P);});
+	   		
+};
+
+function updateDataPaved(lcData) {
+
+		feature = gMap.selectAll("path")
+	    	.transition()
+	        .duration(2000)
+	    	.style("fill", function(lcData) {
+	                                //Get data value
+	                                var value = lcData.properties.Paved_P;
+	                                //window.test=value;
+	                                return colorPaved(value);
+	                   });
+
+	    feature.attr('class', function(lcData) {return lcData.properties.Paved_P;})
+	    	.attr('bin', function(lcData) {return colorBuild(lcData.properties.Paved_P);});
 	   		
 };
 
@@ -449,13 +837,7 @@ function updateDataCan(lcData) {
 	                                //Get data value
 	                                var value = lcData.properties.Can_P;
 	                                //window.test=value;
-	                                if (value) {
-	                                        //If value exists…
-	                                        return colorCan(value);
-	                                } else {
-	                                        //If value is undefined…
-	                                        return "#fff";
-	                                }
+	                                return colorCan(value);
 	                   });
 
 	    feature.attr('class', function(lcData) {return lcData.properties.Can_P;})
@@ -486,6 +868,17 @@ d3.select("#Build_P.layer")
 			});
     });
 
+d3.select("#Road_P.layer")
+	.on("click", function (data){ 
+		//console.log(this);
+	    d3.json("data/landcoversumm.geojson", function(data) {
+			updateDataRoad(data);
+			});
+		d3.json("data/landcoversumm.geojson", function(data) {
+			drawChartRoad(data);
+			});
+    });
+
 
 d3.select("#Can_P.layer")
   .on("click", function (data) {
@@ -497,6 +890,40 @@ d3.select("#Can_P.layer")
 		drawChartCan(data);
 		});
 	});
+
+d3.select("#Grass_P.layer")
+  .on("click", function (data) {
+    //console.log(this);
+	d3.json("data/landcoversumm.geojson", function(data) {
+		updateDataGrass(data);
+		});
+    d3.json("data/landcoversumm.geojson", function(data) {
+		drawChartGrass(data);
+		});
+	});
+
+d3.select("#Soil_P.layer")
+	.on("click", function (data){ 
+		//console.log(this);
+	    d3.json("data/landcoversumm.geojson", function(data) {
+			updateDataSoil(data);
+			});
+		d3.json("data/landcoversumm.geojson", function(data) {
+			drawChartSoil(data);
+			});
+    });
+
+
+d3.select("#Water_P.layer")
+	.on("click", function (data){ 
+		//console.log(this);
+	    d3.json("data/landcoversumm.geojson", function(data) {
+			updateDataWater(data);
+			});
+		d3.json("data/landcoversumm.geojson", function(data) {
+			drawChartWater(data);
+			});
+    });
 
 d3.select("#Paved_P.layer")
   .on("click", function (data) {
