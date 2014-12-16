@@ -1,3 +1,16 @@
+//this adds HARD CODED interactivity - click on #imp_p.layer button and the polygon update.  These only update the *styling* and not the bin and class values for the path that allows hovering over the histogram bars to highlight the corresponding paths on the map
+// d3.select("#Imperv_P.layer")
+// 	.on("click", function (d){ 
+// 		console.log(this);
+//     	d3.selectAll("path")
+// 	        .transition()
+// 	        .duration(2000)
+// 	    	.style("fill", function(d) {
+// 	    		value = d.properties.Imperv_P;
+//                 return colorImperv(value);
+// 			});
+//     });
+
 
 // TEST variable based interactivity W/ SINGLE FILL COLOR listeners for place button clicks
 // $('.layer').on("click",function (d){

@@ -138,14 +138,13 @@ function updateDataImperv(lcData) {
 		// drawChartImperv(lcData);
 };
 
-// this update function doesnt work
 d3.select("li#Imperv_P.layer")
-	.on("click", function (d){ 
+	.on("click", function (data){ 
 		//console.log(this);
-    d3.json("landcoversumm.geojson", function(data) {
+    d3.json("data/landcoversumm.geojson", function(data) {
 		updateDataImperv(data);
 		});
-    d3.json("landcoversumm.geojson", function(data) {
+    d3.json("data/landcoversumm.geojson", function(data) {
 		drawChartImperv(data);
 		});
     });
@@ -188,18 +187,7 @@ d3.select("#Can_P.layer")
 	});
 
 
-//this adds HARD CODED interactivity - click on #imp_p.layer button and the polygon update.  These only update the *styling* and not the bin and class values for the path that allows hovering over the histogram bars to highlight the corresponding paths on the map
-// d3.select("#Imperv_P.layer")
-// 	.on("click", function (d){ 
-// 		console.log(this);
-//     	d3.selectAll("path")
-// 	        .transition()
-// 	        .duration(2000)
-// 	    	.style("fill", function(d) {
-// 	    		value = d.properties.Imperv_P;
-//                 return colorImperv(value);
-// 			});
-//     });
+
 
 d3.select("li#Build_P.layer")
 	.on("click", function(d){ 
