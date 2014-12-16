@@ -1,73 +1,27 @@
 
-Final project in progress for XSAVI-780
-=========================
-12/14/2014
-
-Data Update On Click function running for Imperv but still not updating the histogram or feature attributes
-
-
-=========================
-12/13/2014
-
-Now working BUT are hard coded: the Buildings and Impervious list elements when clicked updates the choropleth with appropriate values and new colors
-
-QUESTION - how to **ALSO** update the histograms based on clicking the buttons corresponding to different choropleths??
-
-(note: interactivity btwn histogram and choropleth no longer works after other choropleths are displayed)
-
-
-
-=========================
-12/12/2014
-
-Incorporated choropleth colors into the histogram for Percent Canopy
-
-Added x-axis
-Also incorporated interactivity between the graph and the map
-
-=========================
-12/11/2014
-
-Color ramps applied to both histogram and to the choropleth
-
-Able to assign corresponding "bin" attr (based on the style color) to both Path polys and Rects that represent the same range (as evidenced by alerts)
-
-But how to upon click event on one of the rects in the histogram, select path polys with correspding "bin", and apply a new style?
-
-TO CHECK:
-- are your histogram bins and choropleth quantize actually the same?
-
-
-
+Final project for XSAVI-780
 =========================
 
-12/4/2014
+Outstanding items:
+1) removing prior set of rects from the D3 histogram without losing the transition animation
 
-Added D3 histogram (that isn't working well)
-
-Next steps: 
-- add classes to the choropleth
-
-
+Future enhancements:
+2) pop-up bar graph on click for specific paths/polygons/NTAs
+3) incorporating other geographies
 
 
 
-=========================
+-------------------------
+Original Project Proposal:
 
-12/2/2014  9 pm
+I propose to build an interactive project that uses both D3 and Leaflet that would allow users to  explore the NYC 2010 land cover dataset which has been summarized by different geographies.
 
-Project updated to add data to map using D3 instead of Leaflet.  Next steps will be to:
-1) clean up the code comments
-2) pull and create the div button elements from the data
-3) add interactivity
+I have layers that represent % tree, % grass etc etc that have been summarized by different citywide polygon datasets - for example, neighborhood, park, community district, etc. Each geographic area has 7 values - one for each land cover class in the data set.
 
-Prior leaflet based mapping code was saved into a file called script_leaflet.js
+I plan to build a web page that would allow the user to toggle between maps showing choropleths of the data for different geographic boundaries (so - many maps!).  There would be a corresponding D3 histogram that would show the distribution of the cover type data values, that would update as the layers shown the map changes. 
 
+For example, if the user elects to see a choropleth that shows % tree cover by neighborhood, the graph would show a histogram of the # of neighborhoods that have % tree cover values in different bins.  Clicking on the bar corresponding to a particular bin would highlight the corresponding neighborhoods on the map.
 
+Finally clicking on a particular feature on the map would show a graph of the % area of the polygon that each cover type comprises.
 
-
-=========================
-
-11/29 code, commited on 12/2/2014 8 pm - SHA bdf2dcfecd2b1537c8f86b5329c3b1668490827d
-
-This is the first attempt at the landCover project using Leaflet to add polygons and styles to the map and the Skeleton boilerplate, with sidebar elements derived from the data that highlight polygons on the map with hover.  No D3 has been incorporated yet.
+I will probably start by building out this web page for one summary geography - like neighborhoods - before adding different summaries (like parks) that the user can chose to view instead.
