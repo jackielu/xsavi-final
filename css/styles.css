@@ -86,7 +86,7 @@ rect:hover {
 
 /*style d3*/
 path {
-  fill-opacity: 0.7;
+  fill-opacity: 0.85;
   stroke: #fff;
   stroke-width: 0.5px;
 }

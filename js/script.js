@@ -25,22 +25,21 @@ var gMap = svgMap.append("g")
 
 //color scale for initial Can_P value
 var colorCan = d3.scale.quantize()
-                    .range(["#d9d9d9", "#f7fcf5", "#e5f5e0", "#c7e9c0", "#a1d99b", "#74c476", "#41ab5d", "#238b45", "#006d2c", "#00441b"])
+                    .range(["#adac8f", "#98a381", "#849974", "#718e67", "#5f845b", "#4e794f", "#3e6e44", "#2g633a", "#205831", "#124d28"])
                     .domain([0, 100]);
 
 //color scale for Build_P value
 var colorBuild = d3.scale.quantize()
-					.range(["#31130F","#471D1C","#5E292B","#76343C","#8D414F","#A44E65","#BA5D7D","#CF6D97","#E27FB3","#F392D0"])
+					.range(["#c4a58e","#c3947d","#c0836e","#bb735f","#b46452","#ab5545","#a1463a","#96392f","#892b25","#7c1f1d"])
 					.domain([0, 100]);
 
 //color scale for Imperv_P value
 var colorImperv = d3.scale.quantize()
-					.range(["#05201F","#4DD1DC","#43BBC3","#39A6AC","#309195", "#277C7F","#1F696A","#175555","#104342","#0A3130"])
+					.range(["#b0aa9e","#9d9f9c","#8b9498","#798993","#677d8d", "#567287","#46687f","#365d77","#26526d","#144763"])
 					.domain([0, 100]);
 
 
 //code to add D3 polygon data to the map is based on http://bost.ocks.org/mike/leaflet/
-
 
 
 //d3.json call starts here
@@ -109,98 +108,6 @@ d3.json("data/landcoversumm.geojson", function(lcData) {
 	  drawChartCan(lcData);
 	});  
 //END d3json call
-
-// ** Update data section (Called from the onclick)
-function updateDataImperv(lcData) {
-
-		//call the function that creates the histogram and appends it to the #hist div
-
-		feature = d3.selectAll("path")
-	    	.transition()
-	        .duration(2000)
-	    	.style("fill", function(lcData) {
-	                                //Get data value
-	                                var value = lcData.properties.Imperv_P;
-	                                //window.test=value;
-	                                if (value) {
-	                                        //If value exists…
-	                                        return colorImperv(value);
-	                                } else {
-	                                        //If value is undefined…
-	                                        return "#fff";
-	                                }
-	                   });
-
-	    feature.attr('class', function(lcData) {return lcData.properties.Imperv_P;})
-	    	.attr('bin', function(lcData) {return colorImperv(lcData.properties.Imperv_P);})
-	    	.on('click',function(lcData) {alert(lcData.properties.Imperv_P + "% impervious and " + colorImperv(lcData.properties.Imperv_P))});
-	   		
-		// drawChartImperv(lcData);
-};
-
-d3.select("li#Imperv_P.layer")
-	.on("click", function (data){ 
-		//console.log(this);
-    d3.json("data/landcoversumm.geojson", function(data) {
-		updateDataImperv(data);
-		});
-    d3.json("data/landcoversumm.geojson", function(data) {
-		drawChartImperv(data);
-		});
-    });
-
-
-
-//RUN HISTOGRAM UPDATE FUNCTION ON CLICK
-// d3.select("#Imperv_P.layer")
-//   .on("click", function (d) {
-//     //console.log(this);
-//     d3.json("landcoversumm.geojson", function(data) {
-// 	    drawChartImperv(data);
-// 		});
-
-// 	d3.selectAll("path")
-// 	    .transition()
-// 	    .duration(2000)
-// 		.style("fill", function(d) {
-// 			value = d.properties.Imperv_P;
-// 	        return colorImperv(value);
-// 		})
-//     	.attr('class', function(d) {return lcData.properties.Imperv_P;})
-//     	.attr('bin', function(d) {return colorImperv(lcData.properties.Imperv_P);});
-// 	});
-
-d3.select("#Can_P.layer")
-  .on("click", function (d) {
-    //console.log(this);
-    d3.json("landcoversumm.geojson", function(data) {
-		drawChartCan(data);
-		});
-
-   	d3.selectAll("path")
-        .transition()
-        .duration(2000)
-    	.style("fill", function(d) {
-    		value = d.properties.Can_P;
-            return colorCan(value);
-		});
-	});
-
-
-
-
-d3.select("li#Build_P.layer")
-	.on("click", function(d){ 
-		//console.log(this);
-    	d3.selectAll("path")
-	        .transition()
-	        .duration(2000)
-	    	.style("fill", function(d) {
-	    		value = d.properties.Build_P;
-                return colorBuild(value)
-			});
-    });
-
 
 
 
@@ -277,7 +184,7 @@ yAxis2 = svg.append("g")
     .call(yAxis);
 
 
-//FUNCTION TO DRAW THE CHART
+//FUNCTION TO DRAW THE CHART for Can_P value
 function drawChartCan(data){
 
   //grab the values you need and bin them
@@ -347,7 +254,7 @@ function drawChartCan(data){
 }
 
 
-//FUNCTION TO UPDATE THE CHART ON CLICK
+//FUNCTION TO UPDATE THE CHART ON CLICK for Imperv_P value
 function drawChartImperv(data) {
 
   //grab the values you need and bin them
@@ -403,7 +310,7 @@ function drawChartImperv(data) {
 		})
      	.on('mouseout', function (d) {
      		d3.selectAll("[bin='"+colorImperv(d.x)+"']")
-     		.style("fill",colorCan(d.x));
+     		.style("fill",colorImperv(d.x));
      	}) 
 
     // handle updated elements
@@ -416,6 +323,187 @@ function drawChartImperv(data) {
     .remove();
 }
 //END CODE FOR UPDATE HISTOGRAM FUNCTION
+
+//FUNCTION TO UPDATE THE CHART ON CLICK for Build_P value
+function drawChartBuild(data) {
+
+  //grab the values you need and bin them
+  histogramData = d3.layout.histogram()
+    .bins(xScale.ticks(10))
+    (data.features.map(function (d) {
+        return d.properties.Build_P}));
+
+  window.histogramData = histogramData;
+
+  yScale.domain([0, d3.max(histogramData, function(d) { return d.y; })])
+    .nice();
+  yAxis.scale(yScale);
+  yAxis2.call(yAxis);
+
+  xAxis2.select(".xLabel")
+    .text("Building Percentage Cover")
+
+  //bind the data once
+  bar = svg.selectAll(".bar")
+      .data(histogramData)
+
+  //handle new elements
+  bar.enter()
+      .append("g")
+      .attr("class", "bar")
+      .attr("transform", function(d) { return "translate(" + xScale(d.x) + "," + yScale(d.y) + ")"; });
+
+  bar
+    .append("rect")
+      .attr("x", 0)
+      .attr("y", function (d) { (height - padding) - yScale(d.y);})
+      .attr("width", xScale(histogramData[0].dx)/2)
+      .attr("height", function (d) { return (height - padding) - yScale(d.y); })
+      //color the bars using the color function for the layer
+      .style("fill", function(d) {
+                        //Get data value
+                        var value = d.x;
+                        //window.test=value;
+                        if (value) {
+                                //If value exists…
+                                return colorBuild(value);
+                        } else {
+                                //If value is undefined…
+                                return "#fff";
+                        }
+           })
+      .attr('bin', function (d) {return colorBuild(d.x);})     
+    	.on('mouseover', function (d) {
+			d3.selectAll("[bin='"+colorBuild(d.x)+"']")
+			.style("fill","#F1B6DA");
+		})
+     	.on('mouseout', function (d) {
+     		d3.selectAll("[bin='"+colorBuild(d.x)+"']")
+     		.style("fill",colorBuild(d.x));
+     	}) 
+
+    // handle updated elements
+  bar.transition()
+    .duration(3000)
+    .attr("transform", function(d) { return "translate(" + xScale(d.x) + "," + yScale(d.y) + ")"; });
+
+    // handle removed elements
+  bar.exit()
+    .remove();
+}
+//END CODE FOR UPDATE HISTOGRAM FUNCTION
+
+
+
+// ** Update Map data section (Called from the onclick)
+function updateDataImperv(lcData) {
+
+		feature = gMap.selectAll("path")
+	    	.transition()
+	        .duration(2000)
+	    	.style("fill", function(lcData) {
+	                                //Get data value
+	                                var value = lcData.properties.Imperv_P;
+	                                //window.test=value;
+	                                if (value) {
+	                                        //If value exists…
+	                                        return colorImperv(value);
+	                                } else {
+	                                        //If value is undefined…
+	                                        return "#fff";
+	                                }
+	                   });
+
+	    feature.attr('class', function(lcData) {return lcData.properties.Imperv_P;})
+	    	.attr('bin', function(lcData) {return colorImperv(lcData.properties.Imperv_P);})
+	    	.on('click',function(lcData) {alert(lcData.properties.Imperv_P + "% impervious and " + colorImperv(lcData.properties.Imperv_P))});
+	   		
+};
+
+function updateDataBuild(lcData) {
+
+		feature = gMap.selectAll("path")
+	    	.transition()
+	        .duration(2000)
+	    	.style("fill", function(lcData) {
+	                                //Get data value
+	                                var value = lcData.properties.Build_P;
+	                                //window.test=value;
+	                                if (value) {
+	                                        //If value exists…
+	                                        return colorBuild(value);
+	                                } else {
+	                                        //If value is undefined…
+	                                        return "#fff";
+	                                }
+	                   });
+
+	    feature.attr('class', function(lcData) {return lcData.properties.Build_P;})
+	    	.attr('bin', function(lcData) {return colorBuild(lcData.properties.Build_P);})
+	    	.on('click',function(lcData) {alert(lcData.properties.Build_P + "% building and " + colorBuild(lcData.properties.Build_P))});
+	   		
+};
+
+function updateDataCan(lcData) {
+
+		feature = gMap.selectAll("path")
+	    	.transition()
+	        .duration(2000)
+	    	.style("fill", function(lcData) {
+	                                //Get data value
+	                                var value = lcData.properties.Can_P;
+	                                //window.test=value;
+	                                if (value) {
+	                                        //If value exists…
+	                                        return colorCan(value);
+	                                } else {
+	                                        //If value is undefined…
+	                                        return "#fff";
+	                                }
+	                   });
+
+	    feature.attr('class', function(lcData) {return lcData.properties.Can_P;})
+	    	.attr('bin', function(lcData) {return colorCan(lcData.properties.Can_P);})
+	    	.on('click',function(lcData) {alert(lcData.properties.Can_P + "% canopy and " + colorCan(lcData.properties.Can_P))});
+	   		
+};
+
+d3.select("li#Imperv_P.layer")
+	.on("click", function (data){ 
+		//console.log(this);
+    d3.json("data/landcoversumm.geojson", function(data) {
+		updateDataImperv(data);
+		});
+    d3.json("data/landcoversumm.geojson", function(data) {
+		drawChartImperv(data);
+		});
+    });
+
+d3.select("#Build_P.layer")
+	.on("click", function (data){ 
+		//console.log(this);
+	    d3.json("data/landcoversumm.geojson", function(data) {
+			updateDataBuild(data);
+			});
+		d3.json("data/landcoversumm.geojson", function(data) {
+			drawChartBuild(data);
+			});
+    });
+
+
+d3.select("#Can_P.layer")
+  .on("click", function (data) {
+    //console.log(this);
+	d3.json("data/landcoversumm.geojson", function(data) {
+		updateDataCan(data);
+		});
+    d3.json("data/landcoversumm.geojson", function(data) {
+		drawChartCan(data);
+		});
+	});
+
+
+
 
 
 //listeners for layer button hovers
