@@ -17,7 +17,8 @@
 
 		<div class="row">
 			<header class = "sixteen columns">
-				<h1>New York City Land Cover in 2010 </h1>
+				<h1>New York City's Land Cover in 2010 </h1>
+				<div id = 'about'>About this map</div>
 			</header>
 		</div>
 
@@ -25,13 +26,13 @@
 			<div id="layerList">
 				<ul id="utcMetric">	
 	  				<li class = "layer" id = "Can_P"> Percent Canopy </li>
-<!-- 	  				<li class = "layer" id = "Grass_P"> Percent Grass </li>
+<!-- 	  			<li class = "layer" id = "Grass_P"> Percent Grass </li>
 	  				<li class = "layer" id = "Soil_P"> Percent Soil </li> -->
 	  				<li class = "layer" id = "Build_P"> Percent Buildings </li>
 <!-- 	  				<li class = "layer" id = "Road_P"> Percent Road </li>
-	  				<li class = "layer" id = "Paved_P"> Other Impervious </li> -->
+ -->	  				<!-- <li class = "layer" id = "Paved_P"> Percent Paved </li> -->
 	  				<li class = "layer" id = "Imperv_P"> Percent Impervious </li>
-<!-- 	  				<li class = "layer" id = "Water_P"> Percent Water </li> -->
+<!-- 	  			<li class = "layer" id = "Water_P"> Percent Water </li> -->
   				</ul>
 			</div>
 
@@ -40,11 +41,28 @@
 
 		<div class = "row">
 			<div class = "sixteen columns" id="hist">
-				<p> Percent Cover by Neighborhood Tabulation Area </p>
+				<h2> Percent Cover by Neighborhood Tabulation Area </h2>
 			</div>
 		</div>
+	</div>
 
+	<div id='mask'></div>
+		<div class = "popup privacy">
+	  		<div class = "close">&#10006;</div>
+	  		<h3>Distribution of land cover types in New York City</h3>
+	  		
+			<p> In 2010, New York City acquired a high-resolution Light-Detection-and-Ranging (LiDAR) dataset, from which a 6-inch resolution 7-class land cover raster was developed using object-oriented image classification, as part of a  tree canopy assessment project. </p>
 
+			<p> As green infrastructure, tree canopy provides many benefits to city residents by saving energy, lowering city temperatures, reducing air pollution, enhancing property values, facilitating social and educational opportunities and providing aesthetic benefits. A tree canopy assessment is the first step in any green infrastructure goal setting process, providing estimates for the amount of tree canopy currently present in a city as well as the amount of tree canopy that could theoretically be established.</p>
+
+			<p>Mapped land cover types in 2010 included tree canopy and differentiated between three types of impervious surfaces, as well as grass, soil and water. The land cover raster was summarized by a number of geographic boundaries, providing metrics on the percentage of each land cover type in areas across the five boroughs. Data is presented here summarized by Neighborhood Tabulation Area to visualize the distribution of land cover types across the city. </p>
+
+			<p><a href="http://dx.doi.org/10.1117/1.JRS.6.063567">The data and the methods used</a> were developed by the University of Vermont Spatial Analysis Laboratory, in collaboration with the New York City Urban Field Station, with funding from the USDA Forest Service. </p>
+
+			<p>Source data published on the New York City Open Data portal. <a href="https://data.cityofnewyork.us/data?agency=Department+of+Parks+and+Recreation+%28DPR%29&cat=&type=&browseSearch=land%20cover&scope=all-data"> <img src="https://raw.githubusercontent.com/betanyc/getDataButton/master/png/88x31.png" alt="88x31" style="max-width:100%;"> </a>
+			</p>
+			
+		</div>
 	</div>
 	
 	<script src="js/d3.min.js"></script>

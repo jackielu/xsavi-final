@@ -7,15 +7,25 @@ body {
 
 
 header {
-/*	background-color: #80cdc1;*/
-	font-size: 3em;
 	line-height: 1.62;
 }
 
+h1 {
+	font-size: 3em;
+}
+
+h2 {
+	font-size: 2.5em;
+}
+
+h3 {
+	font-size: 2.5em;
+	color: #242426;
+}
 
 li {
 	line-height: 1.62;
-	font-size: 1.25em;
+	font-size: 1.55em;
 	margin: 5px;
 	padding: 5px;
 	border-radius: 2px;
@@ -24,10 +34,11 @@ li {
 
 p {
 	line-height: 1.62;
-	font-size: 1.5em;
+	font-size: 2em;
 	margin: 5px;
 	padding: 5px;
 	border-radius: 2px;
+	color: #242426;
 }
 
 .layer {
@@ -63,15 +74,21 @@ rect:hover {
   shape-rendering: crispEdges;
   stroke: #fff;	
   stroke-width: 1px;
-  font: 10px sans-serif;
+  font: sans-serif;
+  font-size: 1.25em;
 }
 
 
 #map {
-	height: 400px;
-	float: right;
+	height: 500px;
 }
 
+#hist {
+/*	position: absolute;
+	display: block;
+	bottom: 5%;
+	z-index: 5%;*/
+}
 
 #layerList {
 /*	background-color: #bf812d;*/
@@ -81,7 +98,6 @@ rect:hover {
 	left: 2%;
 	z-index: 5;
 }
-
 
 
 /*style d3*/
@@ -95,3 +111,80 @@ path:hover {
 	fill-opacity: 1;
 	stroke-width: 1px;
 }
+
+
+
+/* START: these are all the CSS elements related to About popup */
+#about {
+	font-size: 14px;
+	margin: 5px;
+	display: inline;
+	width: 100px;
+	text-align: center;
+	color: whitesmoke;
+	position: absolute;
+	right: 0;
+	top: 10px;
+}
+
+#about:hover {
+	cursor:pointer;
+	color:steelblue;
+	text-decoration:underline;
+}
+
+#mask {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  left: 0;
+  top: 0;
+  background:rgba(51, 51, 51, 0.87);
+  z-index: 10;
+  display:block;
+}
+
+.popup {
+  top: 20%;
+  width: 75%;
+  position: fixed;
+  left: 50%;
+  margin: 0 0 0 -37.5%;
+  z-index: 9999;
+  background: #fff;
+  min-height: 300px;
+  border-radius: 16px;
+  padding: 35px;
+  display:block;
+  opacity: 0.9;
+}
+
+.popup h2 {
+  font-size: 30px;
+  padding-bottom: 24px;
+  margin-top: 0;
+}
+
+.popup p {
+  line-height: 22px;
+  margin-bottom:10px;
+}
+
+.popup h3 {
+  font-weight:bold;
+  margin-bottom:15px;
+}
+
+.popup .close {
+  position: absolute;
+  right: 30px;
+  top: 30px;
+  font-size: 24px;
+  color: #242426;
+}
+
+.popup .close:hover {
+	cursor:pointer;
+	color: #E10000;
+}
+/* END: these are all the CSS elements related to About popup */

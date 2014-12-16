@@ -39,9 +39,7 @@ var colorImperv = d3.scale.quantize()
 					.domain([0, 100]);
 
 
-//code to add D3 polygon data to the map is based on http://bost.ocks.org/mike/leaflet/
-
-
+//CALL THE DATA and ADD THE MAP
 //d3.json call starts here
 d3.json("data/landcoversumm.geojson", function(lcData) {
 	window.test = lcData;
@@ -73,9 +71,7 @@ d3.json("data/landcoversumm.geojson", function(lcData) {
     //assign a class to a D3 feature based on data attributes
 	feature.attr('id',function(d) {return d.properties.UniqueID;})
     	.attr('class', function(d) {return d.properties.Can_P;})
-    	.attr('bin', function(d) {return colorCan(d.properties.Can_P);})
-    	.on('click',function(d) {alert(d.properties.Can_P + "% canopy and" + colorCan(d.properties.Can_P))});
-      	//.on('click',function(d) {alert(d.properties.UniqueID)});
+    	.attr('bin', function(d) {return colorCan(d.properties.Can_P);});
 
     map.on("viewreset", reset);
     reset();
@@ -127,7 +123,7 @@ var xScale, xAxis, xAxis2, yScale, yAxis, yAxis2;
 hist = d3.select("#hist");
 
 //this is where you define the margin of the SVG rectangle that is attached to #hist
-margin = {top: 0, right: 0, bottom: 0, left: 10};
+margin = {top: 0, right: 0, bottom: 50, left: 10};
 
 //dimension of the SVG rectangle
 width = 960 - margin.left - margin.right;
@@ -141,7 +137,7 @@ svg = hist.append("svg")
   .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
 //padding value to push the elements in away from the edges of the SVG
-padding = 50;
+padding = 35;
 
 //a function for formatting numbers
 makeRoundP = d3.format(".3p") 
@@ -395,6 +391,7 @@ function drawChartBuild(data) {
 
 
 
+
 // ** Update Map data section (Called from the onclick)
 function updateDataImperv(lcData) {
 
@@ -439,8 +436,7 @@ function updateDataBuild(lcData) {
 	                   });
 
 	    feature.attr('class', function(lcData) {return lcData.properties.Build_P;})
-	    	.attr('bin', function(lcData) {return colorBuild(lcData.properties.Build_P);})
-	    	.on('click',function(lcData) {alert(lcData.properties.Build_P + "% building and " + colorBuild(lcData.properties.Build_P))});
+	    	.attr('bin', function(lcData) {return colorBuild(lcData.properties.Build_P);});
 	   		
 };
 
@@ -463,10 +459,10 @@ function updateDataCan(lcData) {
 	                   });
 
 	    feature.attr('class', function(lcData) {return lcData.properties.Can_P;})
-	    	.attr('bin', function(lcData) {return colorCan(lcData.properties.Can_P);})
-	    	.on('click',function(lcData) {alert(lcData.properties.Can_P + "% canopy and " + colorCan(lcData.properties.Can_P))});
+	    	.attr('bin', function(lcData) {return colorCan(lcData.properties.Can_P);});
 	   		
 };
+
 
 d3.select("li#Imperv_P.layer")
 	.on("click", function (data){ 
@@ -502,6 +498,16 @@ d3.select("#Can_P.layer")
 		});
 	});
 
+d3.select("#Paved_P.layer")
+  .on("click", function (data) {
+    //console.log(this);
+	d3.json("data/landcoversumm.geojson", function(data) {
+		updateDataPaved(data);
+		});
+    d3.json("data/landcoversumm.geojson", function(data) {
+		drawChartPaved(data);
+		});
+	});
 
 
 
@@ -513,3 +519,17 @@ $('.layer').hover(function(){
 	}, function(){
 	$(this).toggleClass('hover');
 });
+
+
+
+//listeners for the About pop-up window
+$('#about').on('click',function(){
+	$('#mask').fadeIn(250);
+	$('.popup').fadeIn(250);
+});
+
+$('.close').on('click',function(){
+	$(this).parent().fadeOut(250);
+	$('#mask').fadeOut(250);
+});
+
