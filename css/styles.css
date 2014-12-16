@@ -46,8 +46,8 @@ p {
   shape-rendering: crispEdges;
   stroke: #242426;
   stroke-width: 1px;
-  fill-opacity: 0.7;
-}
+/*  fill-opacity: 0.7;
+*/}
 
 rect:hover {
 	fill-opacity: 1;

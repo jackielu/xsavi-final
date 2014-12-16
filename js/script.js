@@ -20,7 +20,8 @@ var svgMap = d3.select(map.getPanes().overlayPane)
 var gMap = svgMap.append("g")
 	.attr("class", "leaflet-zoom-hide");
 
-//set up color scale that takes data values as input and outputs colors
+
+//SET UP THE COLOR SCALES THAT TAKE INPUT VALUE AND OUTPUT A COLOR
 
 //color scale for initial Can_P value
 var colorCan = d3.scale.quantize()
@@ -34,7 +35,7 @@ var colorBuild = d3.scale.quantize()
 
 //color scale for Imperv_P value
 var colorImperv = d3.scale.quantize()
-					.range(["#05201F","#0A3130","#104342","#175555","#1F696A", "#277C7F","#309195","#39A6AC","#43BBC3","#4DD1DC"])
+					.range(["#05201F","#4DD1DC","#43BBC3","#39A6AC","#309195", "#277C7F","#1F696A","#175555","#104342","#0A3130"])
 					.domain([0, 100]);
 
 
@@ -105,7 +106,7 @@ d3.json("data/landcoversumm.geojson", function(lcData) {
 	  }
 
 	//call the function that creates the histogram and appends it to the #hist div
-	  drawChart(lcData);
+	  drawChartCan(lcData);
 	});  
 //END d3json call
 
@@ -114,7 +115,7 @@ function updateDataImperv(lcData) {
 
 		//call the function that creates the histogram and appends it to the #hist div
 
-		var feature = d3.selectAll("path")
+		feature = d3.selectAll("path")
 	    	.transition()
 	        .duration(2000)
 	    	.style("fill", function(lcData) {
@@ -128,23 +129,67 @@ function updateDataImperv(lcData) {
 	                                        //If value is undefined…
 	                                        return "#fff";
 	                                }
-	                   })
-	    	.attr('class', function(lcData) {return lcData.properties.Imperv_P;})
+	                   });
+
+	    feature.attr('class', function(lcData) {return lcData.properties.Imperv_P;})
 	    	.attr('bin', function(lcData) {return colorImperv(lcData.properties.Imperv_P);})
 	    	.on('click',function(lcData) {alert(lcData.properties.Imperv_P + "% impervious and " + colorImperv(lcData.properties.Imperv_P))});
 	   		
-		drawChartImperv(lcData);
+		// drawChartImperv(lcData);
 };
 
-
+// this update function doesnt work
 d3.select("li#Imperv_P.layer")
 	.on("click", function (d){ 
 		//console.log(this);
-    	updateDataImperv(d);
+    d3.json("landcoversumm.geojson", function(data) {
+		updateDataImperv(data);
+		});
+    d3.json("landcoversumm.geojson", function(data) {
+		drawChartImperv(data);
+		});
     });
 
+
+
+//RUN HISTOGRAM UPDATE FUNCTION ON CLICK
+// d3.select("#Imperv_P.layer")
+//   .on("click", function (d) {
+//     //console.log(this);
+//     d3.json("landcoversumm.geojson", function(data) {
+// 	    drawChartImperv(data);
+// 		});
+
+// 	d3.selectAll("path")
+// 	    .transition()
+// 	    .duration(2000)
+// 		.style("fill", function(d) {
+// 			value = d.properties.Imperv_P;
+// 	        return colorImperv(value);
+// 		})
+//     	.attr('class', function(d) {return lcData.properties.Imperv_P;})
+//     	.attr('bin', function(d) {return colorImperv(lcData.properties.Imperv_P);});
+// 	});
+
+d3.select("#Can_P.layer")
+  .on("click", function (d) {
+    //console.log(this);
+    d3.json("landcoversumm.geojson", function(data) {
+		drawChartCan(data);
+		});
+
+   	d3.selectAll("path")
+        .transition()
+        .duration(2000)
+    	.style("fill", function(d) {
+    		value = d.properties.Can_P;
+            return colorCan(value);
+		});
+	});
+
+
 //this adds HARD CODED interactivity - click on #imp_p.layer button and the polygon update.  These only update the *styling* and not the bin and class values for the path that allows hovering over the histogram bars to highlight the corresponding paths on the map
-// d3.select("li#Imperv_P.layer")
+// d3.select("#Imperv_P.layer")
 // 	.on("click", function (d){ 
 // 		console.log(this);
 //     	d3.selectAll("path")
@@ -168,166 +213,119 @@ d3.select("li#Build_P.layer")
 			});
     });
 
-d3.select("li#Can_P.layer")
-	.on("click", function(d){ 
-		console.log(this);
-    	d3.selectAll("path")
-	        .transition()
-	        .duration(2000)
-	    	.style("fill", function(d) {
-	    		value = d.properties.Can_P;
-                return colorCan(value);
-			});
-    });
 
-// TEST variable based interactivity W/ SINGLE FILL COLOR listeners for place button clicks
-// $('.layer').on("click",function (d){
-// 	console.log(this.id);  //what is the ID of what you clicked on?
-// 	var value = "d.properties." + this.id;
-// 	console.log(value);
-// 	d3.selectAll("path")
-// 	    .transition()
-// 	    .duration(2000)
-// 		.style("fill", "#C52034");
-// });
-
-
-// // TEST variable based interactivity W/ SINGLE FILL COLOR listeners for place button clicks
-// $('.layer').on("click",function (d){
-// 	console.log(this.id);  //what is the ID of what you clicked on?
-// 	d3.selectAll("path")
-// 	    .transition()
-// 	    .duration(2000)
-// 		.style("fill", function () {
-// 			if (this.id == "Build_P") {return "#C52034";} 
-// 			else {return "#1656A0";}
-// 		});
-// });
-
-// TEST variable based interactivity W/ SINGLE FILL COLOR listeners for place button clicks
-// $('.layer').on("click",function (d){
-// 	console.log(this.id);  //what is the ID of what you clicked on?
-// 	d3.selectAll("path")
-// 	    .transition()
-// 	    .duration(2000)
-// 		.style("fill", function () {
-// 			if (this.id == "Build_P") {return "#C52034";}
-// 			else if (this.id == "Imperv_P") {return "#1656A0";}
-// 			else {return "#fff"}
-// 		});
-// });
-
-
-// attempt to create listeners for place button clicks that uses a function to update map polys 
-// $('.layer').on("click",function (d){
-// 	console.log(this.id);  //what is the ID of what you clicked on?
-// 	var value = "d.properties." + this.id;
-// 	console.log(value);
-// 	d3.selectAll("path")
-// 	    .transition()
-// 	    .duration(2000)
-// 		.style("fill", function (){
-// 			return colorImp(value);
-// 			} 
-// 		);
-// });
 
 
 //BEGIN CODE FOR CREATING HISTOGRAM
 
-//select the hist div and define it as a variable
-var hist = d3.select("#hist");
-//define the margin of the SVG rectangle
-var marginH = {top: -20, right: 0, bottom: 0, left: 0};
+//CREATE VARIABLES
+var hist;
+var margin, padding;
+var width, height;
+var svg, bar;
+var makeRoundP, formatCount;
+var xScale, xAxis, xAxis2, yScale, yAxis, yAxis2;
+
+
+//CREATE THE VARIABLES NEEDED TO DRAW THE CHART
+//select the div for the histogram and define it as a variable
+hist = d3.select("#hist");
+
+//this is where you define the margin of the SVG rectangle that is attached to #hist
+margin = {top: 0, right: 0, bottom: 0, left: 10};
+
 //dimension of the SVG rectangle
-var widthH = 940 - marginH.left - marginH.right,
-    heightH = 180 - marginH.top - marginH.bottom;
+width = 960 - margin.left - margin.right;
+height = 300 - margin.top - margin.bottom;
 
 //create the SVG rectangle
-var svgH = hist.append("svg")
-    .attr("width", widthH)
-    .attr("height", heightH)
+svg = hist.append("svg")
+  .attr("width", width)
+  .attr("height", height)
   .append("g")
-    .attr("transform", "translate(" + marginH.left + "," + marginH.top + ")");
-
-
-//a function for formatting numbers
-var makeRoundP = d3.format(".3p") 
-
-//a formatter for counts
-var formatCount = d3.format(",.0f");
-
+  .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
 //padding value to push the elements in away from the edges of the SVG
-var padding = 40
+padding = 50;
+
+//a function for formatting numbers
+makeRoundP = d3.format(".3p") 
+
+//a formatter for counts
+formatCount = d3.format(",.0f");
+
 
 //define the xScale
-var xScale = d3.scale.linear()
-	.domain([0,100])
-	.range([padding, widthH - padding]);
+xScale = d3.scale.linear()
+  .domain([0,100])
+  .range([padding, width - padding]);
 
-var xAxis = d3.svg.axis()
-	.scale(xScale)
-	.orient("bottom")
-	.tickFormat(function(d) { return d + "%"; });
+xAxis = d3.svg.axis()
+  .scale(xScale)
+  .orient("bottom")
+  .tickFormat(function(d) { return d + "%"; });
 
-var xAxis2 = svgH.append("g")
+xAxis2 = svg.append("g")
     .attr("class", "x axis")
-    .attr("transform", "translate(0," + (heightH - padding) + ")")
+    .attr("transform", "translate(0," + (height - padding) + ")")
     .call(xAxis);
 
 xAxis2.append("text")
-	.attr("x", widthH / 2)
-	.attr("y", 30)
-	.attr("text-anchor", "middle")
-	.text("Canopy Percentage")
+  .attr("x", width / 2)
+  .attr("y", 30)
+  .attr("text-anchor", "middle")
+  .attr("class", "xLabel")
+
+yScale = d3.scale.linear()    
+  .range([height - padding, padding]);
+
+yAxis = d3.svg.axis()
+  .scale(yScale)
+  .orient("left")
+
+yAxis2 = svg.append("g")
+    .attr("class", "y axis")
+    .attr("transform", "translate(" + padding + ",0)")
+    .call(yAxis);
 
 
-var yScale = d3.scale.linear()    
-	.range([heightH - padding, padding]);
-
-var yAxis = d3.svg.axis()
-	.scale(yScale)
-	.orient("left")
-
-var yAxis2 = svgH.append("g")
-	.attr("class", "y axis")
-	.attr("transform", "translate(" + padding + ",0)")
-	.call(yAxis);
-
-
-
-//new function that is passed the data to create the histogram
-function drawChart(data){
-
-  //window.test2 = data;
+//FUNCTION TO DRAW THE CHART
+function drawChartCan(data){
 
   //grab the values you need and bin them
-  var histBinnedData = d3.layout.histogram()
-  	.bins(xScale.ticks(10))
-  	(data.features.map(function (d) {
-  			return d.properties.Can_P}));
+  histogramData = d3.layout.histogram()
+    .bins(xScale.ticks(10))
+    (data.features.map(function (d) {
+        return d.properties.Can_P}));
 
-  //window.test3 = histBinnedData;
+  window.histogramData = histogramData;
 
-  yScale.domain([0, d3.max(histBinnedData, function(d) { return d.y; })])
-  	.nice();
+  yScale.domain([0, d3.max(histogramData, function(d) { return d.y; })])
+    .nice();
   yAxis.scale(yScale);
   yAxis2.call(yAxis);
 
-  var bar = svgH.selectAll(".bar")
-	    .data(histBinnedData)
-	    .enter().append("g")
-	    .attr("class", "bar")
-	    .attr("transform", function(d) { return "translate(" + xScale(d.x) + "," + yScale(d.y) + ")"; });
 
-	bar.append("rect")
-	    .attr("x", 0)
-	    .attr("y", function (d) { (heightH - padding) - yScale(d.y);})
-	    .attr("width", xScale(histBinnedData[0].dx)/2)
-	    .attr("height", function(d) { return (heightH - padding) - yScale(d.y); })
-    	//color the bars the same way you do the polygons in the choropleth by using the color function on the value
-    	.style("fill", function(d) {
+  xAxis2.select(".xLabel")
+    .text("Canopy Percentage")
+
+  //bind the data once
+  bar = svg.selectAll(".bar")
+      .data(histogramData)
+
+  //handle new elements
+  bar.enter()
+      .append("g")
+      .attr("class", "bar")
+      .attr("transform", function(d) { return "translate(" + xScale(d.x) + "," + yScale(d.y) + ")"; });
+
+  bar.append("rect")
+      .attr("x", 0)
+      .attr("y", function (d) { (height - padding) - yScale(d.y);})
+      .attr("width", xScale(histogramData[0].dx)/2)
+      .attr("height", function (d) { return (height - padding) - yScale(d.y); })
+      //color the bars using the color function for the layer
+      .style("fill", function(d) {
                         //Get data value
                         var value = d.x;
                         //window.test=value;
@@ -339,58 +337,65 @@ function drawChart(data){
                                 return "#fff";
                         }
            })
-    	.attr('bin', function (d) {return colorCan(d.x);})     
-    	// .on('click',function(d) {return alert(colorCan(d.x))})
-    	.on('mouseover', function (d) {
-    		d3.selectAll("[bin='"+colorCan(d.x)+"']")
-    		.style("fill","#F1B6DA");
-    		// console.log(d3.selectAll("[bin='"+colorCan(d.x)+"']"))
-    	})
-    	.on('mouseout', function (d) {
-    		d3.selectAll("[bin='"+colorCan(d.x)+"']")
-    		.style("fill",colorCan(d.x));
-    	})
-    	// .on('click',function(d) {alert(d.bin)})
+      .attr('bin', function (d) {return colorCan(d.x);})
+		.on('mouseover', function (d) {
+			d3.selectAll("[bin='"+colorCan(d.x)+"']")
+			.style("fill","#F1B6DA");
+			// console.log(d3.selectAll("[bin='"+colorCan(d.x)+"']"))
+		})
+     	.on('mouseout', function (d) {
+     		d3.selectAll("[bin='"+colorCan(d.x)+"']")
+     		.style("fill",colorCan(d.x));
+     	})     
 
-	bar.append("text")
-	    .attr("dy", ".75em")
-	    .attr("y", -10)
-	    .attr("x", xScale(histBinnedData[0].dx)/5)
-	    .attr("text-anchor", "top")
-	    .text(function(d) { return formatCount(d.y); });
+    // handle updated elements
+  bar.transition()
+    .duration(3000)
+    .attr("transform", function(d) { return "translate(" + xScale(d.x) + "," + yScale(d.y) + ")"; })
+
+    // handle removed elements
+  bar.exit()
+    .remove();
 }
-//END CODE FOR HISTOGRAM
 
 
-
-
-//V1 of the update function that is passed the data to create the histogram for impervious cover
-function drawChartImperv(data){
+//FUNCTION TO UPDATE THE CHART ON CLICK
+function drawChartImperv(data) {
 
   //grab the values you need and bin them
-  var histBinnedDataImperv = d3.layout.histogram()
-  	.bins(xScale.ticks(10))
-  	(data.features.map(function (d) {
-  			return d.properties.Imperv_P}));
+  histogramData = d3.layout.histogram()
+    .bins(xScale.ticks(10))
+    (data.features.map(function (d) {
+        return d.properties.Imperv_P}));
 
-  window.test4 = histBinnedDataImperv;
+  window.histogramData = histogramData;
 
-  yScale.domain([0, d3.max(histBinnedDataImperv, function(d) { return d.y; })])
-  	.nice();
+  yScale.domain([0, d3.max(histogramData, function(d) { return d.y; })])
+    .nice();
   yAxis.scale(yScale);
   yAxis2.call(yAxis);
 
-	svgH.selectAll(".bar").transition()
-		.attr("transform", function(d) { return "translate(" + xScale(d.x) + "," + yScale(d.y) + ")"; });
+  xAxis2.select(".xLabel")
+    .text("Impervious Percentage")
 
-	bar.selectAll("rect")
-		.transition()
-		.duration(2000)
-	    .attr("y", function (d) { (heightH - padding) - yScale(d.y);})
-	    .attr("width", xScale(histBinnedDataImperv[0].dx)/2)
-	    .attr("height", function(d) { return (heightH - padding) - yScale(d.y); })
-    	//color the bars the same way you do the polygons in the choropleth by using the color function on the value
-    	.style("fill", function(d) {
+  //bind the data once
+  bar = svg.selectAll(".bar")
+      .data(histogramData)
+
+  //handle new elements
+  bar.enter()
+      .append("g")
+      .attr("class", "bar")
+      .attr("transform", function(d) { return "translate(" + xScale(d.x) + "," + yScale(d.y) + ")"; });
+
+  bar
+    .append("rect")
+      .attr("x", 0)
+      .attr("y", function (d) { (height - padding) - yScale(d.y);})
+      .attr("width", xScale(histogramData[0].dx)/2)
+      .attr("height", function (d) { return (height - padding) - yScale(d.y); })
+      //color the bars using the color function for the layer
+      .style("fill", function(d) {
                         //Get data value
                         var value = d.x;
                         //window.test=value;
@@ -402,28 +407,27 @@ function drawChartImperv(data){
                                 return "#fff";
                         }
            })
-    	.attr('bin', function (d) {return colorImperv(d.x);})     
-    	// .on('click',function(d) {return alert(colorImperv(d.x))})
+      .attr('bin', function (d) {return colorImperv(d.x);})     
     	.on('mouseover', function (d) {
-    		d3.selectAll("[bin='"+colorImperv(d.x)+"']")
-    		.style("fill","#F1B6DA");
-    		// console.log(d3.selectAll("[bin='"+colorImperv(d.x)+"']"))
-    	})
-    	.on('mouseout', function (d) {
-    		d3.selectAll("[bin='"+colorImperv(d.x)+"']")
-    		.style("fill",colorImperv(d.x));
-    	})
-    	// .on('click',function(d) {alert(d.bin)})
+			d3.selectAll("[bin='"+colorImperv(d.x)+"']")
+			.style("fill","#F1B6DA");
+			// console.log(d3.selectAll("[bin='"+colorCan(d.x)+"']"))
+		})
+     	.on('mouseout', function (d) {
+     		d3.selectAll("[bin='"+colorImperv(d.x)+"']")
+     		.style("fill",colorCan(d.x));
+     	}) 
 
-	bar.selectAll("text")
-	    .attr("x", xScale(histBinnedDataImperv[0].dx)/5)
-	    .text(function(d) { return formatCount(d.y); });
+    // handle updated elements
+  bar.transition()
+    .duration(3000)
+    .attr("transform", function(d) { return "translate(" + xScale(d.x) + "," + yScale(d.y) + ")"; });
 
-	xAxis2.selectAll("text")
-		.text("Impervious Percentage")
-
+    // handle removed elements
+  bar.exit()
+    .remove();
 }
-//END CODE FOR V1 UPDATE HISTOGRAM
+//END CODE FOR UPDATE HISTOGRAM FUNCTION
 
 
 //listeners for layer button hovers
