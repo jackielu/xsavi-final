@@ -2,12 +2,24 @@
 Final project for XSAVI-780
 =========================
 
-Outstanding items:
-1) removing prior set of rects from the D3 histogram without losing the transition animation
+This web page was submitted as a final project for Pratt XSAVI-780 in Dec 2014.
+
+
+-------------------------
+
+Thank you:  Chris Whong and Larry Buchanan for their awesome teaching and guidance!  
+
+-------------------------
+
+
+
 
 Future enhancements:
-2) pop-up bar graph on click for specific paths/polygons/NTAs
+1) pop-up bar graph on click for specific paths/polygons/NTAs
+2) zoom map on click
 3) incorporating other geographies
+4) smoothly animating the bar chart transitions
+
 
 
 

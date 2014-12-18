@@ -21,7 +21,7 @@ var gMap = svgMap.append("g")
 	.attr("class", "leaflet-zoom-hide");
 
 
-//SET UP THE COLOR SCALES THAT TAKE INPUT VALUE AND OUTPUT A COLOR
+//SET UP THE COLOR SCALES THAT TAKES AN INPUT VALUE AND OUTPUT A COLOR
 
 //color scale for initial Can_P value
 var colorCan = d3.scale.quantize()
@@ -64,7 +64,7 @@ var colorPaved = d3.scale.quantize()
 					.domain([0, 100]);
 
 
-//CALL THE DATA and ADD THE MAP
+//CALL THE DATA and ADD THE MAP - based on http://bost.ocks.org/mike/leaflet/
 //d3.json call starts here
 d3.json("data/landcoversumm.geojson", function(lcData) {
 	window.test = lcData;
@@ -81,16 +81,16 @@ d3.json("data/landcoversumm.geojson", function(lcData) {
     	.append("path")
     	.attr("d",path)
     	.style("fill", function(d) {
-                                //Get data value
-                                var value = d.properties.Can_P;
-                                //window.test=value;
-                                if (value) {
-                                        //If value exists…
-                                        return colorCan(value);
-                                } else {
-                                        //If value is undefined…
-                                        return "#fff";
-                                }
+                    //Get data value
+                    var value = d.properties.Can_P;
+                    //window.test=value;
+                    if (value) {
+                            //If value exists…
+                            return colorCan(value);
+                    } else {
+                            //If value is undefined…
+                            return "#fff";
+                    }
                    });
 
     //assign a class to a D3 feature based on data attributes
@@ -132,7 +132,7 @@ d3.json("data/landcoversumm.geojson", function(lcData) {
 
 
 
-//BEGIN CODE FOR CREATING HISTOGRAM
+//BEGIN CODE FOR CREATING HISTOGRAM - based on http://bl.ocks.org/mbostock/3048450
 
 //CREATE VARIABLES
 var hist;
@@ -205,7 +205,7 @@ yAxis2 = svg.append("g")
     .call(yAxis);
 
 
-//FUNCTION TO DRAW THE CHART for Can_P value
+//FUNCTION TO DRAW THE CHART for Can_P value.  This is only for executing the first chart that draws - you need another function to remove existing recs for updating (b/c there is not always the same number of rects)
 function drawChartCan(data){
 
   //grab the values you need and bin them
@@ -287,6 +287,8 @@ function drawChartGrass(data){
   xAxis2.select(".xLabel")
     .text("Grass Cover Percentage")
 
+  bar.remove();
+
   //bind the data once
   bar = svg.selectAll(".bar")
       .data(histogramData)
@@ -347,9 +349,10 @@ function drawChartSoil(data){
   yAxis.scale(yScale);
   yAxis2.call(yAxis);
 
-
   xAxis2.select(".xLabel")
     .text("Soil Cover Percentage")
+
+  bar.remove();
 
   //bind the data once
   bar = svg.selectAll(".bar")
@@ -413,6 +416,8 @@ function drawChartWater(data){
   xAxis2.select(".xLabel")
     .text("Water Percentage")
 
+  bar.remove();
+
   //bind the data once
   bar = svg.selectAll(".bar")
       .data(histogramData)
@@ -473,6 +478,8 @@ function drawChartImperv(data) {
 
   xAxis2.select(".xLabel")
     .text("Impervious Percentage")
+
+  bar.remove();
 
   //bind the data once
   bar = svg.selectAll(".bar")
@@ -537,6 +544,8 @@ function drawChartRoad(data) {
   xAxis2.select(".xLabel")
     .text("Road Cover Percentage")
 
+  bar.remove();
+
   //bind the data once
   bar = svg.selectAll(".bar")
       .data(histogramData)
@@ -600,6 +609,8 @@ function drawChartPaved(data) {
   xAxis2.select(".xLabel")
     .text("Misc. Paved Percentage Cover")
 
+  bar.remove();
+
   //bind the data once
   bar = svg.selectAll(".bar")
       .data(histogramData)
@@ -662,6 +673,8 @@ function drawChartBuild(data) {
   xAxis2.select(".xLabel")
     .text("Building Percentage Cover")
 
+  bar.remove();
+
   //bind the data once
   bar = svg.selectAll(".bar")
       .data(histogramData)
@@ -706,6 +719,69 @@ function drawChartBuild(data) {
 }
 //END CODE FOR UPDATE HISTOGRAM FUNCTION
 
+//FUNCTION TO UPDATE THE CHART ON CLICK for Can_P value
+function drawChartCan_PUpdate(data) {
+
+  //grab the values you need and bin them
+  histogramData = d3.layout.histogram()
+    .bins(xScale.ticks(10))
+    (data.features.map(function (d) {
+        return d.properties.Can_P}));
+
+  window.histogramData = histogramData;
+
+  yScale.domain([0, d3.max(histogramData, function(d) { return d.y; })])
+    .nice();
+  yAxis.scale(yScale);
+  yAxis2.call(yAxis);
+
+  xAxis2.select(".xLabel")
+    .text("Canopy Percentage")
+
+  bar.remove();
+
+  //bind the data once
+  bar = svg.selectAll(".bar")
+      .data(histogramData)
+
+  //handle new elements
+  bar.enter()
+      .append("g")
+      .attr("class", "bar")
+      .attr("transform", function(d) { return "translate(" + xScale(d.x) + "," + yScale(d.y) + ")"; });
+
+  bar
+    .append("rect")
+      .attr("x", 0)
+      .attr("y", function (d) { (height - padding) - yScale(d.y);})
+      .attr("width", xScale(histogramData[0].dx)/2)
+      .attr("height", function (d) { return (height - padding) - yScale(d.y); })
+      //color the bars using the color function for the layer
+      .style("fill", function(d) {
+                        //Get data value
+                        var value = d.x;
+                        //window.test=value;
+                        return colorBuild(value);
+           })
+      .attr('bin', function (d) {return colorCan_P(d.x);})     
+      .on('mouseover', function (d) {
+      d3.selectAll("[bin='"+colorCan_P(d.x)+"']")
+      .style("fill","#F1B6DA");
+    })
+      .on('mouseout', function (d) {
+        d3.selectAll("[bin='"+colorCan_P(d.x)+"']")
+        .style("fill",colorCan_P(d.x));
+      }) 
+
+    // handle updated elements
+  bar.transition()
+    .duration(3000)
+    .attr("transform", function(d) { return "translate(" + xScale(d.x) + "," + yScale(d.y) + ")"; });
+
+    // handle removed elements
+  bar.exit()
+    .remove();
+}
 
 
 
@@ -887,7 +963,7 @@ d3.select("#Can_P.layer")
 		updateDataCan(data);
 		});
     d3.json("data/landcoversumm.geojson", function(data) {
-		drawChartCan(data);
+		drawChartCan_PUpdate(data);
 		});
 	});
 
@@ -949,7 +1025,7 @@ $('.layer').hover(function(){
 
 
 
-//listeners for the About pop-up window
+//listeners for the About pop-up window - code based on Chris Whong's class example
 $('#about').on('click',function(){
 	$('#mask').fadeIn(250);
 	$('.popup').fadeIn(250);
