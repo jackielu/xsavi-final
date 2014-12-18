@@ -2,7 +2,7 @@
 Final project for XSAVI-780
 =========================
 
-This web page was submitted as a final project for Pratt XSAVI-780 in Dec 2014.
+This web page was submitted as a final project for Pratt XSAVI-780 in Dec 2014.  The public user facing page is here: http://jackielu.github.io/xsavi-final/
 
 
 -------------------------
